@@ -1,0 +1,36 @@
+.accordion{
+
+    height: 80vh !important;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+.accordion-button {
+    background-color: #fff;
+    font-weight: bold;
+}
+
+.step-number {
+    margin-right: 10px;
+    color: #dc3545;
+}
+
+.order-summary {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-left: 1px solid #ddd;
+}
+
+.order-item, .order-total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.order-total strong {
+    color: #000;
+}
+
+.payment-logo {
+    max-width: 100px;
+    margin-top: 10px;
+}

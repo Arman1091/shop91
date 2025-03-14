@@ -1,0 +1,151 @@
+{% extends "included/base.html" %}
+{% load static %}
+{% block title %}Editeur{% endblock title %}
+{% block style_link %}
+<link rel="stylesheet" href="{%static "css/editeur.css" %}">
+
+{% endblock style_link %}
+
+{%block main-content%}
+
+<section id="customize_section" class="container-fluid d-flex justify-content-center">
+    <div class="container customize_container">
+        <div class="row header_customize">
+            <h1 class="text-center">Personnalisez votre plaque<h1>
+        </div>
+        <div class="row input-container2">
+            <div class="col-12  col-sm-5 col-md-4 left-aside ">
+                <h5 class="text-center">Contenu de votre design</h5>
+
+                <div id="input-list">
+                    <!-- Les deux premières lignes définies en HTML -->
+                    {% for ligne in product.lignes.all %}
+                   
+                    <div class="input-container">
+   
+                        
+                        
+
+                        <div class="input-row">
+
+                            <input class="lign_input" type="text" placeholder="Tapez ici..." value={{ ligne.texte }} 
+                                oninput="updateOutput()">
+                            <input class="lign_input_hiden d-none" style="
+                            font-size: {{ ligne.taille_police }}px;
+                            color: {{ ligne.style.couleur }};
+                            {% if ligne.style.gras %} font-weight: bold; {% endif %}
+                            {% if ligne.style.italique %} font-style: italic; {% endif %}
+                            {% if ligne.style.souligne %} text-decoration: underline; {% endif %}
+                            font-family: {{ ligne.police.nom }};
+                            position: absolute;
+                            left: {{ ligne.position_x }}px;
+                            top: {{ ligne.position_y }}px;
+                        "  
+                           >
+                            <button class="delete-btn"
+                                onclick="this.closest('.input-container').remove(); updateOutput()"><i
+                                    class="bi bi-trash3 delete-icon"></i></button>
+                        </div>
+
+                        <div class="controls">
+                            <input  type="number"  min="10" max="50" value={{ligne.taille_police }} 
+                        
+                                onchange="updateStyle(this, 'fontSize', 'pt')">
+                            <button class="toggle-btn"
+                                onclick="toggleStyle(this, 'fontWeight', 'bold', 'normal')">B</button>
+                            <button class="toggle-btn"
+                                onclick="toggleStyle(this, 'fontStyle', 'italic', 'normal')">I</button>
+                            <button class="toggle-btn"
+                                onclick="toggleStyle(this, 'textDecoration', 'underline', 'none')">U</button>
+                            <button class="toggle-btn align-btn" onclick="setAlignment(this, 'start')"><i
+                                    class="bi bi-justify-left"></i></button>
+                            <button class="toggle-btn align-btn" onclick="setAlignment(this, 'center')"><i
+                                    class="bi bi-justify"></i></button>
+                            <button class="toggle-btn align-btn" onclick="setAlignment(this, 'end')"><i
+                                    class="bi bi-justify-right"></i></button>
+                        </div>
+                        
+                    </div>
+                    {% endfor %}
+                 
+
+                </div>
+                <button onclick="addNewInput()">➕ Ajouter une ligne</button>
+            </div>
+            <div class=" output-container col-12 col-sm-7  col-md-8  ">
+                <div class="row output-row  bg-light" style="width:100%,; height:100%">
+                    <div class="affichage-section col-12  col-sm-10 bg-light ">
+                        <div class="row test d-flex justify-content-center flex-column  align-items-center">
+                            <div id="output_div"class="d-flex justify-content-center align-items-center">
+                                <div id="output" style="width:{{product.width}}px; height:{{product.height}}px";
+                                
+                                >
+                                    {% if product.logo %}
+                                    <img id="product_img"src="{{ product.logo.url }}" alt="Logo" 
+                                         style="width: {{ product.logo_width }}px; height: {{ product.logo_height }}px; 
+                                                position: absolute; left: {{ product.logo_position_x }}px; top: {{ product.logo_position_y }}px;">
+                                {% endif %}
+                                </div>
+                            </div>
+                            <div class="bottom-option-place d-flex  justify-content-center align-items-center">
+                                <div class="d-flex flex-column justify-content-center align-items-center">
+                                    <i class="place-bootom-i bi bi-card-image fs-2"></i>
+                                    <p>Logo</p>
+                                </div>
+                                <div class="d-flex  flex-column justify-content-center align-items-center"
+                                    style="margin:60px">
+                                    <i class="place-bootom-i bi bi-qr-code fs-2"></i>
+                                    <p>QR code</p>
+                                </div>
+                                <div class="d-flex  flex-column justify-content-center align-items-center">
+                                    <i class="place-bootom-i bi bi-arrows-vertical fs-2"></i>
+                                    <p>Centrage</p>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class=" plaque-options col-12 col-sm-2 bg-light d-flex flex-column justify-content-center align-items-center ">
+                        <div class="tille-form-div fs-2">
+                            <i class=" bi bi-aspect-ratio plaque-option-icon"></i>
+                            <p class="plaque-option-label">forme</p>
+                        </div>
+                        <div class="materal-div fs-2 d-flex justify-content-center align-items-center flex-column">
+                            <i class="bi bi-box  plaque-option-icon"></i>
+                            <p class="plaque-option-label">Matiere</p>
+                        </div>
+                        <div class="color-div fs-2 d-flex justify-content-center align-items-center flex-column">
+                            <i class="bi bi-droplet  plaque-option-icon "></i>
+                            <p class="plaque-option-label">Colors</p>
+                        </div>
+                        <div class="fixation-div fs-2 d-flex justify-content-center align-items-center flex-column">
+                            <i class="bi bi-paperclip  plaque-option-icon"></i>
+                            <p class="plaque-option-label">Fixation</p>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+           
+        </div>
+        <div class=" row d-flex justify-content-end mt-2">
+            <div class="text-end">
+                <button type="button" class="btn btn-primary btn-lg">AJOUTER AU PANIER</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{%endblock main-content%}
+{% block script_link %}
+
+<script src="{% static 'js/editeur.js' %}"></script>
+{% endblock script_link %}

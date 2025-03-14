@@ -1,0 +1,91 @@
+:root {
+  /* widths for rows and containers
+   */
+  --header-height       : 160px;
+  --header-height-min   : 80px;
+}
+/* on mobile devices below 600px
+*/
+@media screen and (max-width: 600px) {
+  :root {
+      --header-height : 100px;
+      --header-height-min   : 80px;
+  }
+}
+@media screen and (max-width: 991px) {
+  #offcanvasNavbar, #offcanvasSecondNavbar{
+    width: 100%;
+  }
+  /* offcanvas menu */
+  .offcanvas-body .nav-item {
+    font-weight: 100% !important;
+    border-bottom: 1px solid #d1d1d1;
+  }
+
+  /* dropdown-menu */
+  .dropdown-menu {
+    padding: 0;
+    border: none;
+    line-height: 1.4;
+    font-size: 0.9em;
+  }
+  .dropdown-menu a {
+    padding-left: 0;
+  }
+  .dropdown-toggle::after {
+    position: absolute;
+    right: 0;
+    top: 21px;
+  }
+}
+
+.accordion-button::after {
+  display: none !important;
+}
+
+.accordion-item{
+  border: 0;
+}
+
+#activity_accordion_list{
+  list-style: none;
+  padding: 0;
+}
+
+#activity_accordion_list li {
+  text-decoration: none;
+  padding: 5px 0;
+  transition: color 0.3s ease-in-out;
+}
+#activity_accordion_list li:hover {
+  color: brown;
+  background-color: rgb(230, 235, 240);
+}
+#desktop_nav_div{
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+  position: absolute; /* Fixe le menu en haut sans pousser le contenu */
+  top: 160px; /* Ajustez selon la hauteur du header */
+  left: 0;
+  width: 100%;
+  background-color: white;
+ 
+  display: none; /* Caché par défaut */
+}
+.test-container {
+  top: 160px;
+  left: 0;
+  position: absolute;
+  z-index: 1000;
+
+}
+.mega-menu{
+    visibility: hidden;
+}
+
+/* Show #test4 when hovering over a .desktop-nav-link */
+.nav-item:hover #test4 {
+  display: block;
+}
+
+
+

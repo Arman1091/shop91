@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personnalisation de Plaque Professionnelle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+        }
+        .editor {
+            width: 450px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .editor h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .input-group button {
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .input-group button:hover {
+            background: #0056b3;
+        }
+        .preview {
+            width: 300px;
+            height: 200px;
+            background: #fff;
+            border: 2px solid #ccc;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .preview-text {
+            position: absolute;
+            width: auto;
+            white-space: nowrap;
+            color: #000;
+            cursor: move;
+            user-select: none;
+            transition: font-size 0.2s ease;
+        }
+        #line1 { top: 60px; left: 50px; font-family: 'Times New Roman', serif; font-size: 18px; font-weight: bold; }
+        #line2 { top: 90px; left: 50px; font-family: Arial, sans-serif; font-size: 14px; font-style: italic; }
+        #line3 { top: 110px; left: 50px; font-family: 'Helvetica', sans-serif; font-size: 12px; }
+        .logo, .qr-code {
+            position: absolute;
+            background-size: cover;
+            cursor: move;
+            user-select: none;
+            border: 1px dashed #000;
+            display: none; /* Cache les éléments au début */
+        }
+        .logo {
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+        }
+        .qr-code {
+            bottom: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        .resize-handle {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 10px;
+            height: 10px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: se-resize;
+        }
+        .fixation {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: silver;
+            border-radius: 50%;
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+        }
+        .top-left { top: 5px; left: 5px; }
+        .top-right { top: 5px; right: 5px; }
+        .bottom-left { bottom: 5px; left: 5px; }
+        .bottom-right { bottom: 5px; right: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Éditeur -->
+        <div class="editor">
+            <h2>Personnalisation de la Plaque</h2>
+            <div class="input-group">
+                <label for="text1">Ligne 1</label>
+                <input type="text" id="text1" value="Dr. Marie Dupont" oninput="updatePreview()">
+                <button onclick="resizeText('line1', 2)">+</button>
+                <button onclick="resizeText('line1', -2)">-</button>
+            </div>
+            <div class="input-group">
+                <label for="text2">Ligne 2</label>
+                <input type="text" id="text2" value="Médecin Généraliste" oninput="updatePreview()">
+                <button onclick="resizeText('line2', 2)">+</button>
+                <button onclick="resizeText('line2', -2)">-</button>
+            </div>
+            <div class="input-group">
+                <label for="text3">Ligne 3</label>
+                <input type="text" id="text3" value="06 12 34 56 78" oninput="updatePreview()">
+                <button onclick="resizeText('line3', 2)">+</button>
+                <button onclick="resizeText('line3', -2)">-</button>
+            </div>
+            <div class="input-group">
+                <label for="material">Matière</label>
+                <select id="material" onchange="updateMaterial()">
+                    <option value="plexiglas">Plexiglas Blanc Brillant</option>
+                    <option value="laiton">Laiton</option>
+                    <option value="aluminium">Aluminium</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="fixation">Fixation</label>
+                <select id="fixation" onchange="updateFixation()">
+                    <option value="vis">Vis avec caches-vis inox</option>
+                    <option value="adhésif">Adhésif</option>
+                    <option value="entretoises">Entretoises</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="logo">Logo (URL ou fichier)</label>
+                <input type="file" id="logo" accept="image/*" onchange="updateLogo()">
+                <input type="text" id="logo-url" placeholder="Ou entrez une URL" oninput="updateLogoUrl()">
+            </div>
+            <div class="input-group">
+                <label for="qr-url">URL pour QR Code</label>
+                <input type="text" id="qr-url" placeholder="Ex: https://example.com" oninput="updateQR()">
+            </div>
+        </div>
+        <!-- Aperçu -->
+        <div class="preview" id="preview">
+            <div class="logo" id="logo-preview"><div class="resize-handle"></div></div>
+            <div class="preview-text" id="line1">Dr. Marie Dupont</div>
+            <div class="preview-text" id="line2">Médecin Généraliste</div>
+            <div class="preview-text" id="line3">06 12 34 56 78</div>
+            <div class="qr-code" id="qr-preview"><div class="resize-handle"></div></div>
+            <div class="fixation top-left"></div>
+            <div class="fixation top-right"></div>
+            <div class="fixation bottom-left"></div>
+            <div class="fixation bottom-right"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mise à jour du texte
+        function updatePreview() {
+            document.getElementById('line1').textContent = document.getElementById('text1').value;
+            document.getElementById('line2').textContent = document.getElementById('text2').value;
+            document.getElementById('line3').textContent = document.getElementById('text3').value;
+        }
+
+        // Mise à jour de la matière
+        function updateMaterial() {
+            const material = document.getElementById('material').value;
+            const preview = document.getElementById('preview');
+            if (material === 'plexiglas') {
+                preview.style.background = '#fff';
+            } else if (material === 'laiton') {
+                preview.style.background = '#d4af37';
+            } else if (material === 'aluminium') {
+                preview.style.background = '#c0c0c0';
+            }
+        }
+
+        // Mise à jour de la fixation
+        function updateFixation() {
+            const fixation = document.getElementById('fixation').value;
+            const fixationElements = document.querySelectorAll('.fixation');
+            fixationElements.forEach(el => {
+                el.style.display = fixation === 'vis' ? 'block' : 'none';
+            });
+        }
+
+        // Intégration du logo (fichier)
+        function updateLogo() {
+            const file = document.getElementById('logo').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logo-preview').style.backgroundImage = `url(${e.target.result})`;
+                    document.getElementById('logo-preview').style.display = 'block';  // Afficher le logo
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Intégration du logo (URL)
+        function updateLogoUrl() {
+            const url = document.getElementById('logo-url').value;
+            if (url) {
+                document.getElementById('logo-preview').style.backgroundImage = `url(${url})`;
+                document.getElementById('logo-preview').style.display = 'block';  // Afficher le logo
+            }
+        }
+
+        // Génération du QR Code
+        function updateQR() {
+            const qrUrl = document.getElementById('qr-url').value;
+            if (qrUrl) {
+                const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=${encodeURIComponent(qrUrl)}`;
+                document.getElementById('qr-preview').style.backgroundImage = `url(${qrApi})`;
+                document.getElementById('qr-preview').style.display = 'block';  // Afficher le QR code
+            } else {
+                document.getElementById('qr-preview').style.backgroundImage = 'none';
+                document.getElementById('qr-preview').style.display = 'none';  // Masquer le QR code si vide
+            }
+        }
+
+        // Redimensionner le texte (boutons)
+        function resizeText(lineId, change) {
+            const element = document.getElementById(lineId);
+            let currentSize = parseInt(window.getComputedStyle(element).fontSize);
+            let newSize = Math.max(8, Math.min(36, currentSize + change));
+            element.style.fontSize = newSize + 'px';
+        }
+
+        // Drag and Drop pour le texte (toutes directions, sans wrap)
+        function makeTextDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                let newLeft = element.offsetLeft - pos1;
+                let newTop = element.offsetTop - pos2;
+                const preview = document.getElementById('preview');
+                const rect = preview.getBoundingClientRect();
+                const elRect = element.getBoundingClientRect();
+
+                // Limiter le déplacement pour que le texte reste entièrement visible
+                newLeft = Math.max(0, Math.min(newLeft, preview.offsetWidth - elRect.width));
+                newTop = Math.max(0, Math.min(newTop, preview.offsetHeight - elRect.height));
+
+                element.style.left = newLeft + "px";
+                element.style.top = newTop + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        // Drag and Drop + Resize pour logo et QR code
+        function makeDraggableAndResizable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            let resizing = false, startX, startY, startWidth, startHeight;
+            const handle = element.querySelector('.resize-handle');
+
+            // Drag
+            element.onmousedown = function(e) {
+                e.preventDefault();
+                if (e.target === handle) {
+                    resizing = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startWidth = parseInt(element.style.width || 40);
+                    startHeight = parseInt(element.style.height || 40);
+                } else {
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.onmousemove = elementDrag;
+                }
+                document.onmouseup = closeDragElement;
+            };
+
+            function elementDrag(e) {
+                e.preventDefault();
+                if (resizing) {
+                    let newWidth = startWidth + (e.clientX - startX);
+                    let newHeight = startHeight + (e.clientY - startY);
+                    newWidth = Math.max(20, Math.min(100, newWidth));
+                    newHeight = Math.max(20, Math.min(100, newHeight));
+                    element.style.width = newWidth + 'px';
+                    element.style.height = newHeight + 'px';
+                } else {
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                    const preview = document.getElementById('preview');
+                    const rect = preview.getBoundingClientRect();
+                    const elRect = element.getBoundingClientRect();
+                    if (elRect.top < rect.top) element.style.top = "0px";
+                    if (elRect.left < rect.left) element.style.left = "0px";
+                    if (elRect.bottom > rect.bottom) element.style.top = (preview.offsetHeight - elRect.height) + "px";
+                    if (elRect.right > rect.right) element.style.left = (preview.offsetWidth - elRect.width) + "px";
+                }
+            }
+
+            function closeDragElement() {
+                document.onmousemove = null;
+                document.onmouseup = null;
+                resizing = false;
+            }
+        }
+
+        // Appliquer les comportements
+        makeDraggableAndResizable(document.getElementById('logo-preview'));
+        makeDraggableAndResizable(document.getElementById('qr-preview'));
+        makeTextDraggable(document.getElementById('line1'));
+        makeTextDraggable(document.getElementById('line2'));
+        makeTextDraggable(document.getElementById('line3'));
+    </script>
+</body>
+</html>

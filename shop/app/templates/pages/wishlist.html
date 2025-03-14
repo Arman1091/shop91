@@ -1,0 +1,18 @@
+{% extends "included/base.html" %}
+{% block title %}Wishlist{% endblock title %}
+
+{% block main-content %}
+<h1>Votre Wishlist</h1>
+<ul>
+{% for item in wishlist_items %}
+    <li>{{ item.customized_product.base_product.name }}</li>
+{% empty %}
+    <li>Votre wishlist est vide.</li>
+{% endfor %}
+</ul>
+{% if not is_authenticated %}
+    <p>Connectez-vous pour sauvegarder votre wishlist.</p>
+    <a href="{% url 'login' %}?next={% url 'view_wishlist' %}">Se connecter</a>
+{% endif %}
+<a href="{% url 'home' %}">Retour à l'accueil</a>
+{% endblock main-content %}

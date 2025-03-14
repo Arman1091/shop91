@@ -1,0 +1,104 @@
+{% extends "included/base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+{% block style_link %}
+<link rel="stylesheet" href="{%static "css/home.css" %}"> 
+{% endblock style_link %}
+
+{%block main-content%}
+<p>Category Slug: {{ category.slug_name }}</p>
+   <!-- Hero Section -->
+
+
+{% comment %} nos produis {% endcomment %}
+
+<section class="py-5">
+    <div class="container">
+      
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="bootstrap-tabs product-tabs">
+            <div class="row tabs-header  border-bottom my-5">
+                <div  >
+                    <h3>LA SELECTION</h3>
+                <div>
+              
+              <nav class="nav-cagetory" >
+                <div class="nav nav-tabs d-flex  " id="nav-tab" role="tablist">
+                    {% for category, products in category_products.items %}
+                        <a class="nav-link-home-category nav-link text-uppercase fs-6 {% if forloop.first %}active{% endif %}"  
+                           data-bs-toggle="tab" 
+                           href="#tab-{{ category.slug_name }}">{{ category.name }}</a>
+                    {% endfor %}
+                </div>
+                
+              </nav>
+            </div>
+            <div class="tab-content" id="nav-tabContent">
+                {% for category, products in category_products.items %}
+    <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="tab-{{ category.slug_name }}" role="tabpanel">
+        <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+            {% for product in products %}
+            {{product.id}}
+                <div class="col-6 col-md-4">
+                    <div class="product-item">
+                        <a href="#" class="btn-wishlist"><i class="bi bi-heart" width="24" height="24"></i></a>
+                        <figure>
+                             <a href="{% url 'product_detail'  product.id %}"  title="{{ product.name }}"> 
+                              
+
+                                {% with product.images.all|dictsortreversed:"is_featured"|first as featured_image %}
+                                    {% if featured_image %}
+                                        <img src="{{ featured_image.image_url.url }}" class="tab-image" style="width:100%" alt="{{ product.name }}">
+                                    {% else %}
+                                        <img src="{% static 'img/prof1.png' %}" class="tab-image" style="width:100%" alt="No Image">
+                                    {% endif %}
+                                {% endwith %}
+                            </a>
+                        </figure>
+                        <h3>{{ product.name }}</h3>
+                        <span class="qty">1 Unit</span>
+                        <span class="rating">
+                            <svg width="24" height="24" class="text-primary"><use xlink:href="#star-solid"></use></svg> 4.5
+                        </span>
+                        <span class="price">$18.00</span>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <a href="#" class="btn btn-warning fs-5">Personnaliser <iconify-icon icon="uil:shopping-cart"></iconify-icon></a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Bouton "Voir plus" spécifique à chaque catégorie -->
+        <div class="text-center mt-3">
+            <a class="btn btn-primary" href="#" role="button">Voir plus</a>
+        </div>
+
+    </div>
+{% endfor %}
+
+            
+            </div>
+            
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+</section>
+
+
+
+{% comment %} ****************par materieux********* {% endcomment %}
+
+
+
+{%endblock main-content%}
+{% block script_link %}
+
+
+{% endblock script_link %}

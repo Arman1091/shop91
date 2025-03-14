@@ -1,0 +1,52 @@
+{% extends "included/base.html" %}
+{% load static %}
+
+{%block main-content%}
+<h1>{{ product.name }}</h1>
+<p><strong>Description :</strong> {{ product.description }}</p>
+<p><strong>Dimensions :</strong> {{ product.width }} x {{ product.height }} mm</p>
+
+{% if product.material %}
+    <p><strong>Matériau :</strong> {{ product.material.name }}</p>
+{% endif %}
+
+{% if product.thickness %}
+    <p><strong>Épaisseur :</strong> {{ product.thickness.value }} {{ product.thickness.unit }}</p>
+{% endif %}
+
+{% if product.plaque_color %}
+    <p><strong>Couleur de plaque :</strong> 
+        <span style="display:inline-block;width:20px;height:20px;background-color:{{ product.plaque_color.hex_code }}"></span>
+        {{ product.plaque_color.name }}
+    </p>
+{% endif %}
+
+<h2>Personnalisation du texte :</h2>
+<ul>
+    {% for ligne in product.lignes.all %}
+    <li>
+        <p style="
+            font-size: {{ ligne.taille_police }}px;
+            color: {{ ligne.style.couleur }};
+            {% if ligne.style.gras %} font-weight: bold; {% endif %}
+            {% if ligne.style.italique %} font-style: italic; {% endif %}
+            {% if ligne.style.souligne %} text-decoration: underline; {% endif %}
+            font-family: {{ ligne.police.nom }};
+            position: absolute;
+            left: {{ ligne.position_x }}px;
+            top: {{ ligne.position_y }}px;
+        ">
+            {{ ligne.texte }}
+        </p>
+    </li>
+    {% endfor %}
+</ul>
+
+{% if product.logo %}
+    <h2>Logo :</h2>
+    <img src="{{ product.logo.url }}" alt="Logo" 
+         style="width: {{ product.logo_width }}px; height: {{ product.logo_height }}px; 
+                position: absolute; left: {{ product.logo_position_x }}px; top: {{ product.logo_position_y }}px;">
+{% endif %}
+
+{% endblock %}

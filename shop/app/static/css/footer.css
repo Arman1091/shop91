@@ -1,0 +1,13 @@
+#tel-bottom_nav{
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+#tel-bottom_nav a {
+  color:rgb(43, 38, 38)
+}
+
+#tel-bottom_nav a:hover {
+  color: rgba(17, 4, 4, 0.534);
+  
+}
+
+

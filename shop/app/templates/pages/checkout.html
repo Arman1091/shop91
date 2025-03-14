@@ -1,0 +1,235 @@
+{% extends "included/base.html" %}
+{% load static %}
+
+{% block title %}Checkout{% endblock title %}
+{% block style_link %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{%static "css/checkout.css" %}">
+{% endblock style_link %}
+{% block main-content %}
+<div class="container mt-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-6 checkout-left-part">
+            <div   id="checkoutAccordion" class="accordion">
+                <!-- Step 1: Connexion -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingConnexion">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConnexion" aria-expanded="true" aria-controls="collapseConnexion">
+                            <span class="step-number">1</span> Connexion
+                        </button>
+                    </h2>
+                    <div id="collapseConnexion" class="accordion-collapse collapse show" aria-labelledby="headingConnexion" data-bs-parent="#checkoutAccordion">
+                        <div class="accordion-body">
+                            <div class="mb-3 d-flex ">
+                                <div class="form-check ">
+                                    <input class="form-check-input" type="radio" name="client_type" value="new" checked>
+                                    <label class="form-check-label">Nouveau client</label>
+                                </div>
+                                <div class="form-check mx-3">
+                                    <input class="form-check-input" type="radio" name="client_type" value="existing">
+                                    <label class="form-check-label">Déjà client</label>
+                                </div>
+                            </div>
+                            {% comment %} <form id="checkout_inscription" method="post" action="checkout-inscription">
+                                {% csrf_token %}
+                           
+                                <div class="mb-3">
+                                    <label for="prenom" class="form-label">Prénom *</label>
+                                    <input type="text" class="form-control" id="prenom" name="prenom" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nom" class="form-label">Nom *</label>
+                                    <input type="text" class="form-control" id="nom" name="nom" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">E-mail *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Mot de passe *</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <small class="text-muted">Le mot de passe doit contenir 5 caractères au minimum.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Inscription</button>
+                            </form>  {% endcomment %}
+
+                            <form id="checkout_inscription" method="post" action="checkout-inscription" novalidate class="shadow p-5">
+                                {% csrf_token %}
+                                {% for fm in registration_form%}
+                                    {{ fm.label_tag }} {{ fm }}
+                                    <small class="text-danger">{{ fm.errors|striptags }}</small>
+                                    <br>
+                                {% endfor %}
+                                <input type="submit" value="Continuer" class="btn btn-primary">
+                                <br>
+                                
+                                {% if registration_form.non_field_errors %}
+                                    {% for error in registration_form.non_field_errors %}
+                                        <p class="alert alert-danger my-3">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }}" role="alert">
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </form> 
+                            <form id="checkout_connexion" method="post"class="shadow p-5"   novalidate  action="checkout-connexion" style="display:none;">
+        
+                                    {% csrf_token %}
+                                    {% for fm in login_form %}
+                                        {{ fm.label_tag }} {{ fm }}
+                                        <small class="text-danger">{{ fm.errors|striptags }}</small>
+                                        <br>
+                                    {% endfor %}
+                                    <small><a href ="{% url 'password_reset'%}">Forget Password?</a></small>
+                                    </br>
+                                    <input type="submit" value="Connexion" class="btn btn-primary">
+                                    <br>
+                     
+                                    {% if login_form.non_field_errors %}
+                                        {% for error in login_form.non_field_errors %}
+                                            <p class="alert alert-danger my-3">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if messages %}
+                                        {% for message in messages %}
+                                            <div class="alert alert-{{ message.tags }}" role="alert">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                   
+                            
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Adresses -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingAdresses">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdresses" aria-expanded="false" aria-controls="collapseAdresses">
+                            <span class="step-number">2</span> Adresses
+                        </button>
+                    </h2>
+                    <div id="collapseAdresses" class="accordion-collapse collapse" aria-labelledby="headingAdresses" data-bs-parent="#checkoutAccordion">
+                        <div class="accordion-body">
+                            <form id="adresses-form" method="post" action="checkout-address">
+                                {% csrf_token %}
+                                {% for fm in address_form %}
+                                    {{ fm.label_tag }} {{ fm }}
+                                    <small class="text-danger">{{ fm.errors|striptags }}</small>
+                                    <br>
+                                {% endfor %}
+   
+                                <input type="submit" value="Enregistrer" class="btn btn-primary">
+                                <br>
+                 
+                                {% if address_form.non_field_errors %}
+                                    {% for error in address_form.non_field_errors %}
+                                        <p class="alert alert-danger my-3">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }}" role="alert">
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                               
+                        
+                        </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Livraison -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingLivraison">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLivraison" aria-expanded="false" aria-controls="collapseLivraison">
+                            <span class="step-number">3</span> Livraison
+                        </button>
+                    </h2>
+                    <div id="collapseLivraison" class="accordion-collapse collapse" aria-labelledby="headingLivraison" data-bs-parent="#checkoutAccordion">
+                        <div class="accordion-body">
+                            <form id="livraison-form" method="post" action="{% url 'checkout_livraison' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="delivery_method" class="form-label">Méthode de livraison *</label>
+                                    <select class="form-select" id="delivery_method" name="delivery_method" required>
+                                        <option value="standard">Standard (7.00 €)</option>
+                                        <option value="express">Express (12.00 €)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Confirmer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingPaymennt">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="false" aria-controls="collapsePayment">
+                            <span class="step-number">3</span> Payment
+                        </button>
+                    </h2>
+                    <div id="collapsePayment" class="accordion-collapse collapse" aria-labelledby="headingLivraison" data-bs-parent="#checkoutAccordion">
+                        <div class="accordion-body">
+                            <form id="livraison-form" method="post" action="#">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    shdu
+                                </div>
+                                <button type="submit" class="btn btn-primary">Payer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4  checkout-right-part">
+            <div class="order-summary">
+                <h4>Votre commande</h4>
+                <div class="order-item">
+                    <p>{{ cart_items|length }} produit(s) <a href="#" class="text-muted">Afficher le détail</a></p>
+                </div>
+                <div class="order-total">
+                    <p>Cous-total HT</p>
+                    <p>{{ subtotal_ht|floatformat:2 }} €</p>
+                </div>
+                <div class="order-total">
+                    <p>Livraison HT</p>
+                    <p>{{ shipping_ht|floatformat:2 }} €</p>
+                </div>
+                <div class="order-total">
+                    <p>Total (HT)</p>
+                    <p>{{ total_ht|floatformat:2 }} €</p>
+                </div>
+                <div class="order-total">
+                    <p>TVA (20%)</p>
+                    <p>{{ tva|floatformat:2 }} €</p>
+                </div>
+                <div class="order-total">
+                    <p>Total TTC</p>
+                    <p><strong>{{ total_ttc|floatformat:2 }} €</strong></p>
+                </div>
+                <p class="text-muted">Paiement 100% sécurisé</p>
+                <img src="{% static 'img/up2pay_logo.png' %}" alt="Up2pay" class="payment-logo">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{%endblock main-content%}
+{% block script_link %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/checkout.js' %}"></script>
+
+{% endblock script_link %}

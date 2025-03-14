@@ -1,0 +1,13 @@
+{% extends "included/base.html" %}
+{% block title %}Politique de Cookies{% endblock title %}
+
+{% block main-content %}
+<h1>Politique de Cookies</h1>
+<p>Nous utilisons des cookies pour améliorer votre expérience sur notre site. Voici des informations sur les types de cookies que nous utilisons :</p>
+<ul>
+    <li><strong>Cookies essentiels</strong> : Nécessaires au fonctionnement du site (sessions, authentification).</li>
+    <li><strong>Cookies de performance</strong> : Pour analyser l’utilisation du site (anonymes).</li>
+</ul>
+<p>Vous pouvez accepter ou refuser les cookies via le bandeau en bas de page.</p>
+<a href="{% url 'home' %}">Retour à l'accueil</a>
+{% endblock main-content %}

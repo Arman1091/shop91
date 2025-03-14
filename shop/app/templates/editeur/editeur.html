@@ -1,0 +1,303 @@
+{% extends "included/base.html" %}
+{% load static %}
+{% block title %}Éditeur{% endblock title %}
+{% block style_link %}
+<link rel="stylesheet" href="{% static 'css/editeur.css' %}">
+{% endblock style_link %}
+
+{% block main-content %}
+<!-- Formulaire pour soumettre les personnalisations -->
+<form id="customize-form" method="post" enctype="multipart/form-data" action="{% url 'customize_product' product.id %}">
+    {% csrf_token %}
+    <div id="logo-modal" class="modal-container">
+        <div class="modal-content">
+            <button type="button" class="close-modal close-modal-logo">×</button>
+            <h3>Choisissez un logo</h3>
+            <div class="logo-list">
+                <img src="{% static 'img/hero-img.png' %}" class="logo-option">
+                <img src="logo2.png" class="logo-option">
+                <img src="logo3.png" class="logo-option">
+            </div>
+            <h4>Ou importez votre propre logo :</h4>
+            <div id="drop-zone">
+                <p>Glissez votre image ici</p>
+                <input type="file" id="upload-logo" name="logo" accept="image/*">
+            </div>
+        </div>
+    </div>
+
+    <div id="material-modal" class="modal-container">
+        <div class="modal-content">
+            <button type="button" class="close-modal close-modal-materiel">×</button>
+            <div class="select-materiel-container container">
+                <h1 class="btn-warning">Les matières</h1>
+                <div class="select-materiel-grid">
+                    <div class="input-container12">
+                        {% for material in materials %}
+                            <div class="select-materiel-plaque select-materiel-plexiglas" data-material-id="{{ material.id }}">
+                                {% if material.image %}
+                                    <img id='{{ material.id }}' src="{{ material.image.url }}" alt="{{ material.name }}">
+                                {% endif %}
+                                <p class="btn-warning">{{ material.name }} →</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="color-modal" class="modal-container">
+        <div class="modal-content">
+            <button type="button" class="close-modal close-modal-color">×</button>
+            <h3>Choisissez une couleur</h3>
+            {% for color in plaque_colors %}
+                <div class="color-option" data-color-id="{{ color.id }}" style="background-color: {{ color.hex_code }};">{{ color.name }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <section id="customize_section" class="container-fluid d-flex justify-content-center">
+        <div class="container customize_container">
+            <div class="row header_customize">
+                <h1 class="text-center">Personnalisez votre plaque</h1>
+            </div>
+            <div class="row input-container2">
+                <div class="col-12 col-sm-5 col-md-4 left-aside">
+                    <h5 class="text-center">Contenu de votre design</h5>
+                    <div id="input-list">
+                        {% for ligne in product.lignes.all %}
+                            <div class="input-container">
+                                <div class="input-row">
+                                    <input class="lign_input" type="text" name="texte[]" placeholder="Tapez ici..." value="{{ ligne.texte }}" oninput="updateOutput()">
+                                    <input class="lign_input_hiden d-none" name="hidden_texte[]"
+                                        style="font-size: {{ ligne.taille_police }}px; color: {{ ligne.style.couleur }};
+                                               {% if ligne.style.gras %} font-weight: bold; {% endif %}
+                                               {% if ligne.style.italique %} font-style: italic; {% endif %}
+                                               {% if ligne.style.souligne %} text-decoration: underline; {% endif %}
+                                               font-family: {{ ligne.police.nom }};
+                                               position: absolute; left: {{ ligne.position_x }}px; top: {{ ligne.position_y }}px;"
+                                        value="{{ ligne.texte }}">
+                                    <button type="button" class="delete-btn" onclick="this.closest('.input-container').remove(); updateOutput()">
+                                        <i class="bi bi-trash3 delete-icon"></i>
+                                    </button>
+                                </div>
+                                <div class="controls">
+                                    <input type="number" name="taille_police[]" min="10" max="50" value="{{ ligne.taille_police }}" onchange="updateStyle(this, 'fontSize', 'px')">
+                                    <button type="button" class="toggle-btn {% if ligne.style.gras %}active{% endif %}" onclick="toggleStyle(this, 'fontWeight', 'bold', 'normal')">B</button>
+                                    <button type="button" class="toggle-btn {% if ligne.style.italique %}active{% endif %}" onclick="toggleStyle(this, 'fontStyle', 'italic', 'normal')">I</button>
+                                    <button type="button" class="toggle-btn {% if ligne.style.souligne %}active{% endif %}" onclick="toggleStyle(this, 'textDecoration', 'underline', 'none')">U</button>
+                                    <button type="button" class="toggle-btn align-btn" onclick="setAlignment(this, 'start')"><i class="bi bi-justify-left"></i></button>
+                                    <button type="button" class="toggle-btn align-btn" onclick="setAlignment(this, 'center')"><i class="bi bi-justify"></i></button>
+                                    <button type="button" class="toggle-btn align-btn" onclick="setAlignment(this, 'end')"><i class="bi bi-justify-right"></i></button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div id="add_new_item">
+                        <div id="new_ligne" class="d-flex justify-content-center align-items-center">
+                            <button type="button" id="new_ligne_btn" class="btn" onclick="addNewInput()">Ajouter une ligne</button>
+                        </div>
+                        <div id="new_qr" class="accordion d-flex justify-content-center align-items-center bg-light mt-2">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button id="btn_acardion" class="d-flex justify-content-center accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo" style="background-color: rgb(220, 232, 242);">
+                                        Ajouter QR Code
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <label for="qr-url">URL pour QR Code</label>
+                                        <input type="text" id="qr-url" name="qr_url" placeholder="Ex: https://example.com" oninput="updateQR()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="output-container col-12 col-sm-7 col-md-8">
+                    <div class="row output-row bg-light" style="width:100%; height:100%">
+                        <div class="affichage-section col-12 col-sm-10 bg-light">
+                            <div class="row test d-flex justify-content-center flex-column align-items-center">
+                                <div id="output_div" class="d-flex justify-content-center align-items-center">
+                                    <div id="output" style="width:{{product.width}}px; height:{{product.height}}px;">
+                                        <div class="logo-plaque-ex draggable" id="logo-preview"
+                                            style="{% if product.logo %}width: {{ product.logo_width }}px; height:{{ product.logo_height }}px; position: absolute; left: {{ product.logo_position_x }}px; top: {{ product.logo_position_y }}px; background-image: url('{{ product.logo.url }}'); background-size: cover;{% else %}bottom:30px; left:100px; width:50px; height:50px;{% endif %}">
+                                            <div class="resize-handle"></div>
+                                        </div>
+                                        <div class="qr-code draggable" id="qr-preview"
+                                            style="{% if product.qrCode %}width: {{ product.qrCode_width }}px; height: {{ product.qrCode_height }}px; position: absolute; left: {{ product.qrCode_position_x }}px; top: {{ product.qrCode_position_y }}px; background-image: url('{{ product.qrCode.url }}'); background-size: cover;{% else %}bottom:30px; left:100px; width:50px; height:50px;{% endif %}">
+                                            <div class="resize-handle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bottom-option-place d-flex justify-content-center align-items-center">
+                                    <div class="d-flex flex-column justify-content-center align-items-center">
+                                        <button type="button" id="add_logo" class="btn"><i class="place-bootom-i bi bi-card-image fs-2"></i></button>
+                                        <p>Logo</p>
+                                    </div>
+                                    <div class="d-flex flex-column justify-content-center align-items-center">
+                                        <i class="place-bootom-i bi bi-arrows-vertical fs-2"></i>
+                                        <p>Centrage</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="plaque-options col-12 col-sm-2 bg-light d-flex flex-column justify-content-center align-items-center">
+                            <div class="tille-form-div fs-2">
+                                <i class="bi bi-aspect-ratio plaque-option-icon"></i>
+                                <p class="plaque-option-label">forme</p>
+                            </div>
+                            <div class="materal-div fs-2 d-flex justify-content-center align-items-center flex-column">
+                                <button type="button" id="select_materiel" class="btn"><i class="bi bi-box plaque-option-icon fs-2"></i></button>
+                                <p class="plaque-option-label">Matière</p>
+                            </div>
+                            <div class="color-div fs-2 d-flex justify-content-center align-items-center flex-column">
+                                <button type="button" id="select_color" class="btn"><i class="bi bi-droplet plaque-option-icon fs-2"></i></button>
+                                <p class="plaque-option-label">Couleurs</p>
+                            </div>
+                            <div class="fixation-div fs-2 d-flex justify-content-center align-items-center flex-column">
+                                <i class="bi bi-paperclip plaque-option-icon"></i>
+                                <p class="plaque-option-label">Fixation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row d-flex justify-content-end mt-2">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary btn-lg" id="add-to-cart-btn" >AJOUTER AU PANIER</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Champs cachés pour les données dynamiques -->
+    <input type="hidden" name="logo_width" id="logo-width">
+    <input type="hidden" name="logo_height" id="logo-height">
+    <input type="hidden" name="logo_position_x" id="logo-position-x">
+    <input type="hidden" name="logo_position_y" id="logo-position-y">
+    <input type="hidden" name="qrCode_width" id="qrCode-width">
+    <input type="hidden" name="qrCode_height" id="qrCode-height">
+    <input type="hidden" name="qrCode_position_x" id="qrCode-position-x">
+    <input type="hidden" name="qrCode_position_y" id="qrCode-position-y">
+    <input type="hidden" name="material" id="material-id">
+    <input type="hidden" name="plaque_color" id="plaque-color-id">
+</form>
+
+<div id="success_add_card" style="display: none;">
+
+    <div class="success_add_card-content">
+        <button type="button" class="close-modal-section ">×</button>
+        <div class="container-fluid">
+            <div class="row row-customize" id="product-info">
+                {% comment %} <div class="col-sm-3 text-center align-self-center">
+                    <img src="{% static 'img/hero-img.png' %}" 
+                    alt="" srcset="" class="img-fluid img-thumbnail shadow-sm"
+                    height="150" width="150">
+                </div> 
+
+                <div class="col-sm-9">
+                    <div>
+                        <h5>sdsd</h5>
+                        <p class="mb-2 text-muted small"> sddsd</p>
+                        <div class="my-3">
+                            <label for="quantity">Quantity:</label>
+                            <a class="minus-cart btn" ><i class="fas fa-minus-square fa-lg"></i> </a>
+                                <span id="quantity"></span>
+                            <a class="plus-cart btn" ><i class="fas fa-plus-square fa-lg"></i> </a>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="remove-cart btn btn-sm btn-secondary mr-3" >Remove item</a>
+                            <p class="mb-0"><span><strong>Rs. 25</strong></span></p>
+                        </div>
+                    </div>
+                </div> {% endcomment %}
+            </div>
+            <div class="row gap-2 d-flex justify-content-center">
+                <div class="col-12 col-sm-5 bg-warning">
+                    <button class="btn ">Continuer mes achat</button>
+                </div>
+                <div class="col-12 col-sm-5 bg-success">
+                    <a class="btn go-to-cart" >Aller Au panier</a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock main-content %}
+
+{% block script_link %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    
+$(document).ready(function() {
+
+    // Handle form submission with AJAX
+    $('#customize-form').on('submit', function(e) {
+
+     
+
+        var formData = new FormData(this); // Serialize form data including files
+
+        $.ajax({
+            url: $(this).attr('action'), // Use the form's action URL
+            type: 'POST',
+            data: formData,
+            processData: false, // Tell jQuery not to process the data
+            contentType: false, // Tell jQuery not to set content type
+            success: function(response) {
+                // On success, show the success div and populate it
+                $('#success_add_card').show();
+
+                // Populate product info dynamically
+                var productInfo = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-success" role="alert">
+                            Produit ajouté au panier avec succès !
+                        </div>
+                    </div>
+                    <div class="col-sm-3 text-center align-self-center">
+                        <img src="${response.logo_url || '{% static 'img/hero-img.png' %}'}" 
+                             alt="Product Image" class="img-fluid img-thumbnail shadow-sm" 
+                             height="150" width="150">
+                    </div>
+                    <div class="col-sm-9">
+                        <div>
+                            <h5>${response.product_name || 'Customized Product'}</h5>
+                            <p class="mb-2 text-muted small">Material: ${response.material_name || 'N/A'}</p>
+                            <p class="mb-2 text-muted small">Color: ${response.color_name || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+                $('#product-info').html(productInfo);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding to cart.');
+            }
+        });
+    });
+
+    // Close success modal
+    $('.close-modal-section').on('click', function() {
+        $('#success_add_card').hide();
+    });
+
+    // Continue shopping button
+    $('.continue-shopping').on('click', function() {
+        $('#success_add_card').hide();
+    });
+
+    // Go to cart button (assuming you have a cart URL)
+    $('.go-to-cart').on('click', function() {
+        $('#success_add_card').hide();
+        window.location.href = "{% url 'view_cart' %}"; // Replace with your cart URL name
+    });
+});
+</script>
+<script src="{% static 'js/editeur.js' %}"></script>
+{% endblock script_link %}

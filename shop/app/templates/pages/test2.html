@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Uploader</title>
+    <style>
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 20px;
+            width: 300px;
+        }
+        .upload-area.dragover {
+            background-color: #e1e1e1;
+            border-color: #999;
+        }
+        #output {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #output img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-area" id="dropZone">
+        <button id="uploadButton">Importer une image</button>
+        <p>Cliquez ici ou glissez votre image dans le cadre</p>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    </div>
+    <div id="output"></div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const uploadButton = document.getElementById('uploadButton');
+        const fileInput = document.getElementById('fileInput');
+        const output = document.getElementById('output');
+
+        // Trigger file input when button is clicked
+        uploadButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', handleFiles);
+        
+        // Drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e);
+        });
+
+        function handleFiles(event) {
+            const files = event.target.files || event.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Create an img element and append it to the output div
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        output.innerHTML = ''; // Clear previous content
+                        output.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Veuillez sélectionner un fichier image.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

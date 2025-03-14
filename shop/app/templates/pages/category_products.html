@@ -1,0 +1,29 @@
+{% extends "included/base.html" %}
+{% load static %}
+
+{%block main-content%}
+<h1>Produits de la catégorie : {{ category.name }}</h1>
+
+<div class="row">
+    {% for product in products %}
+        <div class="col-6 col-md-4">
+            <div class="product-item">
+                <figure>
+                    <a href="#">
+                        {% with product.images.all|dictsortreversed:"is_featured"|first as featured_image %}
+                            {% if featured_image %}
+                                <img src="{{ featured_image.image_url.url }}" class="tab-image" style="width:100%" alt="{{ product.name }}">
+                            
+                                {% else %}
+                                <img src="{% static 'img/prof1.png' %}" class="tab-image" style="width:100%" alt="No Image">
+                            {% endif %}
+                        {% endwith %}
+                    </a>
+                </figure>
+                <h3>{{ product.name }}</h3>
+                <span class="price">${{ product.price }}</span>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

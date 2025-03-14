@@ -1,0 +1,17 @@
+{% extends "included/base.html" %}
+{% block title %}Paiement{% endblock title %}
+
+{% block main-content %}
+<h1>Paiement</h1>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+<p>Total: {{ total }} €</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Payer avec Stripe</button>
+</form>
+<a href="{% url 'view_cart' %}">Retour au Panier</a>
+{% endblock main-content %}

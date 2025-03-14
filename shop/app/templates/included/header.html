@@ -1,0 +1,184 @@
+{% load static %}
+
+<header>
+  <div class="container-fluid">
+    <div class="row py-3 border-bottom d-flex justify-content-between bg-light">
+      
+      <div class="col-4 col-lg-3 text-center text-sm-start">
+        <div class="main-logo">
+          <a  href="{% url 'home'  %}" >
+            <img src="{% static 'img/logoo.png' %}" alt="logo" class="img-fluid">
+          </a>
+      
+          <a class="dropdown-item" href="{% url "passwordchange" %}">Change Password</a>
+        </div>
+      </div>
+      
+      <div class="offset-sm-2 offset-md-0 col-5 d-none d-md-block ">
+        <div class="search-bar row bg-light rounded-4">
+          <div class="col-11 d-flex">
+            <form id="search-form" class="text-center w-100" action="index.html" method="post">
+              <input type="text" class="form-control border-0 " placeholder="Search..." style=" background-color:rgb(241, 244, 247)" />
+            </form>
+          </div>
+          <div class="col-1">
+            <i class="bi bi-search "></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-sm-3 col-lg-4 d-none d-md-flex justify-content-end gap-3 align-items-center mt-4 mt-sm-0">
+        <div class="wishlist ">
+          <button class="border-0 bg-transparent d-flex flex-column" type="button">
+            <span class="text-muted "><a href="{% url 'view_wishlist' %}"><i class="bi bi-heart " style="font-size:22px"></i></a> </span>
+          </button>
+        </div>
+        <div class="cart text-end dropdown">
+          {% comment %} <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+            <span class="fs-6 text-muted "><a href="{% url 'cart:view_cart' %}"><i class="bi bi-cart" style="font-size:22px"></i></a></span>
+          </button> {% endcomment %}
+          <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button">
+            <span class="fs-6 text-muted "><a href="{% url 'view_cart' %}"><i class="bi bi-cart" style="font-size:22px"></i></a></span>
+          </button>
+        </div>
+        <div class="cart dropdown">
+          <button class="border-0 bg-transparent d-flex flex-column" type="button" data-bs-toggle="offcanvas" data-bs-target="#profilCart" aria-controls="profilCart">
+            <span class="text-muted "><i class="bi bi-person" style="font-size:22px"></i></span>
+          </button>
+        </div>
+
+        {% comment %} <div class="cart text-end dropdown">
+          <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+            <span class="fs-6 text-muted "><i class="bi bi-cart" style="font-size:22px"></i></span>
+          </button>
+        </div> {% endcomment %}
+      </div>
+      
+      <div class="col-2 d-block d-md-none text-end">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+          <span class="navbar-toggler-icon"><i class="bi bi-list" style="font-size:33px"></i></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<div id="desktop_nav_div " class="container-fluid" >
+  <div class="row ">
+    <div class="d-flex justify-content-center justify-content-sm-between align-items-center">
+      <nav class="main-menu d-flex navbar navbar-expand-md ">
+        
+        <!-- Mega Menu pour Desktop -->
+        <ul class="navbar-nav d-none d-md-flex gap-md-3  justify-content-start  ">
+          {% for category in categories %}
+          <li class="nav-item  dropdown ">
+
+              <a href="#" class="nav-link desktop-nav-link " data-bs-toggle="dropdown">{{ category.name }}</a>
+              {% comment %} {% if category.subcategories %}dropdown-toggle{% endif %} {% endcomment %}
+              
+              {% if category.subcategories %}
+              
+              <div class="dropdown-menu   mega-menu p-3  ">
+                <div  id="mega-menu-row"class="row mega-menu-row" style="width:98vw">
+                  {% for subcategory in category.subcategories %}
+                    <div class="col-md-4">
+                      <h6 class="fw-bold">{{ subcategory.name }}</h6>
+                      <ul class="list-unstyled">
+                        {% for activity in subcategory.activities %}
+                          <li><a href="#" class="dropdown-item">{{ activity.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+
+   
+
+      </nav>
+    </div>
+  </div>
+</div>
+  
+
+     <!-- Offcanvas pour Mobile -->
+<div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="offcanvasNavbar">
+   <div class="offcanvas-header">
+     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+   </div>
+   <div class="offcanvas-body">
+     <ul class="navbar-nav">
+       {% for category in categories %}
+         <li class="nav-item d-flex justify-content-between align-items-center">
+           <a href="#" class="nav-link">{{ category.name }}</a>
+           {% if category.subcategories %}
+             <span class="d-block d-md-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSecondNavbar">
+               <i class="bi bi-arrow-right"></i>
+             </span>
+             <ul class="submenu d-none">
+               {% for subcategory in category.subcategories %}
+                 <li class="submenu-item">{{ subcategory.name }}</li>
+                 {% for activity in subcategory.activities %}
+                   <li class="{{ subcategory.name }}_submenu-item">{{ activity.name }}</li>
+                 {% endfor %}
+               {% endfor %}
+             </ul>
+           {% endif %}
+         </li>
+       {% endfor %}
+     </ul>
+  </div>
+</div>
+
+    <!-- Deuxième Offcanvas pour sous-catégories -->
+<div class="offcanvas offcanvas-end d-md-none" tabindex="-1" id="offcanvasSecondNavbar">
+  <div class="offcanvas-header">
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="d-flex">
+    <span data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+      <i class="bi bi-arrow-left-short"></i>
+    </span>
+    <span class="title current-category">Catégorie</span>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="navbar-nav"></ul>
+  </div>
+</div>
+{% comment %} ********** {% endcomment %}
+
+  <div  id="test4"class="test-container container-fluid bg-light">
+
+  </div>
+
+{% comment %} ************* {% endcomment %}
+
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="profilCart" >
+  <div class="offcanvas-header justify-content-center">
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="order-md-last">
+      <nav>
+        <ul>
+            {% if user.is_authenticated %}
+                <li>Bonjour, {{ user.first_name }} 👋</li>
+                <li><a href="{% url 'logout' %}">Déconnexion</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Connexion</a></li>
+                <li><a href="{% url 'customerregistration' %}">Inscription</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    </div>
+  </div>
+</div>
+
+{% block script_link %}
+<script src="{% static 'js/header.js' %}"></script>
+{% endblock script_link %}

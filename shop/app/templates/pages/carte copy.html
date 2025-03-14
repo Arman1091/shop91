@@ -1,0 +1,27 @@
+{% extends "included/base.html" %}
+{% block title %}Panier{% endblock title %}
+
+{% block main-content %}
+<h1>Votre Panier</h1>
+<ul>
+{% for item in cart_items %}
+    {% if is_authenticated %}
+        <li>{{ item.customized_product.base_product.name }} - Quantité: {{ item.quantity }} - Sous-total: {{ item.get_subtotal }} €</li>
+    {% else %}
+        <li>Produit personnalisé (ID: {{ item.customized_product.temp_id }}) - Quantité: {{ item.quantity }} - Sous-total: {{ item.subtotal }} €</li>
+    {% endif %}
+{% empty %}
+    <li>Votre panier est vide.</li>
+{% endfor %}
+</ul>
+<p>Total: {{ total }} €</p>
+{% if is_authenticated %}
+    <a href="{% url 'checkout' %}">Procéder au paiement</a>
+{% else %}
+    <p>Connectez-vous ou inscrivez-vous pour procéder au paiement :</p>
+    <a href="{% url 'login' %}?next={% url 'checkout' %}" class="btn btn-primary">Se connecter</a>
+    <a href="{% url 'customerregistration' %}" class="btn btn-secondary">S’inscrire</a>
+{% endif %}
+<a href="{% url 'view_wishlist' %}">Voir ma Wishlist</a>
+<a href="{% url 'home' %}">Retour à l'accueil</a>
+{% endblock main-content %}

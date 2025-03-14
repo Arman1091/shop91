@@ -1,0 +1,24 @@
+{% extends "included/base.html" %}
+{% block title %}Succès{% endblock title %}
+
+{% block main-content %}
+<h1>Plaque personnalisée avec succès !</h1>
+<p>{{ customized_product.base_product.name|default:customized_product.base_product_id }}</p>
+<button onclick="addToCart({{ customized_product_id }})">Ajouter au Panier</button>
+<a href="{% url 'view_cart' %}">Voir mon Panier</a>
+<a href="{% url 'view_wishlist' %}">Voir ma Wishlist</a>
+{% if not is_authenticated %}
+    <p>Connectez-vous ou inscrivez-vous pour finaliser votre achat :</p>
+    <a href="{% url 'login' %}?next={% url 'checkout' %}" class="btn btn-primary">Se connecter</a>
+    <a href="{% url 'customerregistration' %}" class="btn btn-secondary">S’inscrire</a>
+{% endif %}
+<a href="{% url 'home' %}">Retour à l'accueil</a>
+
+<script>
+function addToCart(id) {
+    fetch(`/cart/add/${id}/`, { method: "POST", headers: { "X-CSRFToken": "{{ csrf_token }}" } })
+        .then(response => response.json())
+        .then(data => alert(data.message));
+}
+</script>
+{% endblock main-content %}
