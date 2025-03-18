@@ -179,13 +179,11 @@
                         </button>
                     </h2>
                     <div id="collapsePayment" class="accordion-collapse collapse" aria-labelledby="headingLivraison" data-bs-parent="#checkoutAccordion">
-                        <div class="accordion-body">
-                            <form id="livraison-form" method="post" action="#">
+                        <div class="accordion-body-payment">
+
+                            <form method="post"action="checkout-payment" >
                                 {% csrf_token %}
-                                <div class="mb-3">
-                                    shdu
-                                </div>
-                                <button type="submit" class="btn btn-primary">Payer</button>
+                                <button type="submit">Payer avec Stripe</button>
                             </form>
                         </div>
                     </div>

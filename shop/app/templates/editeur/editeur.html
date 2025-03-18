@@ -239,7 +239,7 @@ $(document).ready(function() {
     // Handle form submission with AJAX
     $('#customize-form').on('submit', function(e) {
 
-     
+        e.preventDefault(); // Prevent default form submission
 
         var formData = new FormData(this); // Serialize form data including files
 

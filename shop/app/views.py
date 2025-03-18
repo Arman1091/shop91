@@ -244,7 +244,8 @@ def checkout_address(request):
                 return JsonResponse({'success': True})
             else:
                 return JsonResponse({'success': False, 'error': 'Form is not valid'})
-
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
     else:
         initial_data = {
             'mobile': customer.mobile,
@@ -269,12 +270,61 @@ def checkout_livraison(request):
     return JsonResponse({'success': False})
 
 @csrf_exempt
-def checkout_paiement(request):
-    if request.method == "POST":
-        card_number = request.POST.get('card_number')
-        # Payment processing logic here
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False})
+def checkout_payment(request):
+    try:
+        customer = request.user.customer
+        cart = get_object_or_404(Cart, user=request.user, is_active=True)
+        cart_items = cart.items.all()
+        if not cart_items:
+            messages.error(request, "Votre panier est vide.")
+            return redirect('view_cart')
+
+        total = sum(item.get_subtotal() for item in cart_items) * 100
+        if total <= 0:
+            messages.error(request, "Le montant total doit être supérieur à 0.")
+            return redirect('view_cart')
+
+        if request.method == "POST":
+            payment, created = Payment.objects.get_or_create(
+                cart=cart,  # Utilise le panier comme clé unique
+                defaults={
+                    "user": request.user,
+                    "amount": total / 100,
+                    "stripe_payment_id": f"pending_{cart.id}",
+                    "status": "pending"
+                }
+            )
+
+            if not created:
+                if payment.status in ["completed", "failed"]:
+                    messages.error(request, "Ce panier a déjà été traité (statut: %s)." % payment.status)
+                    return redirect('view_cart')
+                # Si le paiement est "pending", on peut recréer une session Stripe
+
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[{
+                    "price_data": {
+                        "currency": "eur",
+                        "product_data": {"name": "Achat Panier"},
+                        "unit_amount": int(total),
+                    },
+                    "quantity": 1,
+                }],
+                mode="payment",
+                success_url=f"http://localhost:8000/success/?session_id={{CHECKOUT_SESSION_ID}}&payment_id={payment.id}",
+                cancel_url="http://localhost:8000/cart/",
+            )
+            payment.stripe_payment_id = session.id
+            payment.save()
+            return redirect(session.url, code=303)
+
+        return render(request, "pages/checkout.html", {"customer": customer, "cart": cart, "total": total / 100})
+
+    except stripe.error.StripeError as e:
+        messages.error(request, f"Erreur de paiement : {str(e)}")
+        return redirect('view_cart')
+
 def success(request):
     session_id = request.GET.get('session_id')
     payment_id = request.GET.get('payment_id')
