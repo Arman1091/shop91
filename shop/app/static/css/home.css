@@ -344,9 +344,9 @@
 
 /* 
 /* par materiels  */
-.par-materiel-container {
+.par-materiel-container ,.par-category-container{
   padding: 20px;
-} */
+} 
 
 h1 {
 
@@ -354,15 +354,16 @@ h1 {
   margin-bottom: 20px;
 }
 
-.par-materiel-grid {
+.par-materiel-grid, .par-category-grid {
   display: grid;
   gap: 20px;
   padding: 0 20px;
   margin: 0 auto;
 }
 
+
 @media (min-width: 1024px) {
-  .par-materiel-grid {
+  .par-materiel-grid ,.par-category-grid {
       grid-template-columns: repeat(5, 1fr);
       max-width: 100%;
       width: 100vw;
@@ -371,13 +372,13 @@ h1 {
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .par-materiel-grid {
+  .par-materiel-grid ,.par-category-grid {
       grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 767px) {
-  .par-materiel-grid {
+  .par-materiel-grid,.par-category-grid  {
       grid-template-columns: repeat(2, 1fr);
   }
   h1 {
@@ -385,36 +386,69 @@ h1 {
   }
 }
 
-.par-materiel-plaque {
+.par-materiel-plaque ,.par-category-plaque{
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 10px;
+  padding: 5px;
   cursor: pointer;
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.par-materiel-plaque:hover {
+.par-category-plaque{
+  position: relative;
+  height: 25vh;
+  
+}
+.par-materiel-plaque:hover, .par-category-plaque:hover {
   transform: scale(1.05);
 }
+.par-category-plaque:hover {
+  border-color: #2b302e;
+}
+/* .par-category-plaque:hover .go-category {
+  border: 1px solid #212422;
+} */
 
 .par-materiel-plaque img {
   max-width: 100%;
   height: 100%;
   
   border-radius: 4px;
+  
+}
+.par-category-plaque img{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 4px;
+  left: 0;
+  top: 0;
 }
 
 .par-materiel-plaque p {
-  margin: 10px 0 0;
+  margin: 5px 0 0;
   color: #333;
   font-size: 14px;
   text-align: center;
 }
+.par-category-plaque p {
 
+  font-size: 14px;
+  text-align: center;
+}
+.img-category{
+  position: absolute;
+}
+.title-category{
+  position: absolute;
+  bottom: -10px !important;
+
+  color: #fff !important;
+ 
+}
 .par-materiel-plexiglas { border-color: #ffd700; }
 .par-materiel-aluminium { border-color: #c0c0c0; }
 .par-materiel-laiton { border-color: #d4a017; }

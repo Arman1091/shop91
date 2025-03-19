@@ -35,7 +35,7 @@
 
   <div class="container-fluid" >
      <div class="row slide-info justify-content-around align-items-center"style="min-height:10vh">
-        <div class="col-6 col-md-3 d-flex justify-content-center flex-column ">
+        <div class="col-6 col-md-3 d-flex justify-content-center flex-column bordur">
             <i class=" text-center bi bi-truck fs-3"></i>
             <p class="text-center">Livraison Rapide</p>
             
@@ -56,7 +56,36 @@
      
   </div>
 
-
+{% comment %} *******par category ************ {% endcomment %}
+<div class="par-category-container container">
+    <h1 class="btn-warning">Les plaques par matières</h1>
+    <div class="par-category-grid">
+        <div class="par-category-plaque">
+            <img  class="img-category"src="{% static 'img/materieux/plexiglas.png' %}" alt="Plaque en Plexiglas">
+            <p class="title-category"> Plaques en Plexiglas →</p> 
+        </div>
+        <div class="par-category-plaque ">
+            <img class="img-category"  src="{% static 'img/materieux/aluminium.png' %}" alt="Plaque en Aluminium">
+            <p class="title-category">Plaques en Aluminium →</p>
+        </div>
+        <div class="par-category-plaque ">
+            <img  class="img-category" src="{% static 'img/materieux/laiton.png' %}" alt="Plaque en Laiton">
+            <p class="title-category">Plaques en Laiton →</p>
+        </div>
+        <div class="par-category-plaque ">
+            <img class="img-category" src="{% static 'img/materieux/pvc.png' %}" alt="Plaque en PVC eco">
+            <p class="title-category">Plaques en PVC eco →</p>
+        </div>
+        <div class="par-category-plaque ">
+            <img class="img-category" src="{% static 'img/materieux/dibon.png' %}" alt="Plaque en Dibond eco">
+            <p class="title-category">Plaques en Dibond eco →</p>
+        </div>
+        <div class="par-category-plaque ">
+            <img class="img-category" src="{% static 'img/materieux/dibon.png' %}" alt="Plaque en Dibond eco">
+            <p class="title-category">Plaques en Dibond eco →</p>
+        </div>
+    </div>
+</div>
 {% comment %} Plaque professionnelle{% endcomment %}
 
 
