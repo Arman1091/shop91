@@ -58,32 +58,33 @@
 
 {% comment %} *******par category ************ {% endcomment %}
 <div class="par-category-container container">
-    <h1 class="btn-warning">Les plaques par matières</h1>
+    <h1 class="btn-warning">Voir les catégories les plus populaires </h1>
     <div class="par-category-grid">
-        <div class="par-category-plaque">
-            <img  class="img-category"src="{% static 'img/materieux/plexiglas.png' %}" alt="Plaque en Plexiglas">
-            <p class="title-category"> Plaques en Plexiglas →</p> 
-        </div>
-        <div class="par-category-plaque ">
-            <img class="img-category"  src="{% static 'img/materieux/aluminium.png' %}" alt="Plaque en Aluminium">
-            <p class="title-category">Plaques en Aluminium →</p>
-        </div>
+        <a href="{% url 'plaque_professionnelle' %}">
+            <div class="par-category-plaque" >
+                <img  class="img-category"src="{% static 'img/materieux/plexiglas.png' %}" alt="Plaque en Plexiglas">
+                <p class="title-category"> Plaque professionnel →</p> 
+            </div>
+        </a>
+        <a href="{% url 'plaque_maison' %}">
+            <div class="par-category-plaque ">
+                <img class="img-category"  src="{% static 'img/materieux/aluminium.png' %}" alt="Plaque en Aluminium">
+                <p class="title-category">Plaque maison →</p>
+            </div>
+        </a>
         <div class="par-category-plaque ">
             <img  class="img-category" src="{% static 'img/materieux/laiton.png' %}" alt="Plaque en Laiton">
-            <p class="title-category">Plaques en Laiton →</p>
+            <p class="title-category">Lettres en relief →</p>
         </div>
         <div class="par-category-plaque ">
             <img class="img-category" src="{% static 'img/materieux/pvc.png' %}" alt="Plaque en PVC eco">
-            <p class="title-category">Plaques en PVC eco →</p>
+            <p class="title-category">Signalétique →</p>
         </div>
         <div class="par-category-plaque ">
             <img class="img-category" src="{% static 'img/materieux/dibon.png' %}" alt="Plaque en Dibond eco">
-            <p class="title-category">Plaques en Dibond eco →</p>
+            <p class="title-category">Plaques sur meusure →</p>
         </div>
-        <div class="par-category-plaque ">
-            <img class="img-category" src="{% static 'img/materieux/dibon.png' %}" alt="Plaque en Dibond eco">
-            <p class="title-category">Plaques en Dibond eco →</p>
-        </div>
+
     </div>
 </div>
 {% comment %} Plaque professionnelle{% endcomment %}

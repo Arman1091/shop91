@@ -40,4 +40,6 @@ urlpatterns = [
     path("customization-success-temp/", views.customization_success_temp, name="customization_success_temp"),
     path("cookie-policy/", views.cookie_policy, name="cookie_policy"),
     path("set-cookie-consent/", views.set_cookie_consent, name="set_cookie_consent"),
+    path("plaque-professionnelle/", views.plaque_professionnelle, name="plaque_professionnelle"),
+    path("plaque-maison/", views.plaque_maison, name="plaque_maison"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

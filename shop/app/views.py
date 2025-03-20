@@ -941,3 +941,13 @@ def set_cookie_consent(request):
 
 def cookie_policy(request):
     return render(request, "pages/cookie_policy.html")
+
+
+
+def plaque_professionnelle(request):
+
+    return render(request, "plaque/plaque-professionnelle.html")
+
+def plaque_maison(request):
+
+    return render(request, "plaque/plaque-maison.html")
