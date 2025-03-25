@@ -1,1 +1,156 @@
-Plaque prof
+{% extends "included/base.html" %}
+{% load static %}
+
+{% block title %}Plaques Professionnelles{% endblock title %}
+
+{% block style_link %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}"> 
+{% endblock style_link %}
+
+{% block main-content %}
+<p>Category Slug: {{ category.slug_name }}</p>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="bootstrap-tabs product-tabs">
+                    <div class="row tabs-header border-bottom my-5">
+                        <div>
+                            <h3>LA SÉLECTION</h3>
+                            <nav class="nav-cagetory">
+                                <div class="nav nav-tabs d-flex" id="nav-tab" role="tablist">
+                                    {% for sub_item in subcategories %}
+                                        <a class="nav-link-home-category nav-link text-uppercase fs-6 {% if forloop.first %}active{% endif %}" 
+                                           id="nav-{{ sub_item.slug_name }}-tab"
+                                           data-bs-toggle="tab"
+                                           href="#tab-{{ sub_item.slug_name }}"
+                                           data-subcategory="{{ sub_item.slug_name }}"
+                                           role="tab"
+                                           aria-controls="tab-{{ sub_item.slug_name }}"
+                                           aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                            {{ sub_item.name }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="nav-tabContent">
+                        {% for sub_item in subcategories %}
+                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                 id="tab-{{ sub_item.slug_name }}" 
+                                 role="tabpanel" 
+                                 aria-labelledby="nav-{{ sub_item.slug_name }}-tab">
+                                <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" 
+                                     id="product-grid-{{ sub_item.slug_name }}">
+                                    {% if forloop.first %}
+                                        {% for product in products %}
+                                            <div class="col-6 col-md-4">
+                                                <div class="product-item">
+                                                    <a href="#" class="btn-wishlist"><i class="bi bi-heart" width="24" height="24"></i></a>
+                                                    <figure>
+                                                        
+                                                        <a href="{% url 'editeur' product.activity.sub_category.category.slug_name  product.activity.slug_name product.id %}" title="{{ product.name }}">
+                                                            {% with product.images.all|dictsortreversed:'is_featured'|first as featured_image %}
+                                                                {% if featured_image %}
+                                                                    <img src="{{ featured_image.product_image.image_url.url }}" 
+                                                                         class="tab-image" 
+                                                                         style="width:100%" 
+                                                                         alt="{{ product.name }}">
+                                                                {% else %}
+                                                                    <img src="{% static 'img/prof5.png' %}" 
+                                                                         class="tab-image" 
+                                                                         style="width:100%" 
+                                                                         alt="No Image">
+                                                                {% endif %}
+                                                            {% endwith %}
+                                                        </a>
+                                                    </figure>
+                                                    <h3>{{ product.name }}</h3>
+                                                    <span class="qty">1 Unit</span>
+                                                    <span class="rating">
+                                                        <svg width="24" height="24" class="text-primary"><use xlink:href="#star-solid"></use></svg> 4.5
+                                                    </span>
+                                                    <span class="price">$18.00</span>
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <a href="#" class="btn btn-warning fs-5">
+                                                            Personnaliser <iconify-icon icon="uil:shopping-cart"></iconify-icon>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="text-center mt-3">
+                                    <a class="btn btn-primary" href="#" role="button">Voir plus</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock main-content %}
+
+{% block script_link %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.nav-link-home-category').on('click', function(e) {
+            e.preventDefault();
+    
+            var subcategorySlug = $(this).data('subcategory');
+            var productGrid = $('#product-grid-' + subcategorySlug);
+    
+            $.ajax({
+                url: "{% url 'get_products_by_subcategory' %}",
+                type: 'GET',
+                data: {
+                    'subcategory': subcategorySlug
+                },
+                success: function(response) {
+                    console.log(response);  // Ajoutez ceci pour déboguer la réponse
+                    if (response.products) {
+                        productGrid.empty();
+                        response.products.forEach(function(product) {
+                            var categorySlug = product.category_slug || 'unknown-category';
+                            var activitySlug = product.activity_slug || 'unknown-activity';
+                            var productHtml = `
+                                <div class="col-6 col-md-4">
+                                    <div class="product-item">
+                                        <a href="#" class="btn-wishlist"><i class="bi bi-heart" width="24" height="24"></i></a>
+                                        <figure>
+                                            <a href="/${categorySlug}/${activitySlug}-${product.id}/editeur/" title="${product.name}">
+                                                <img src="${product.image_url}" class="tab-image" style="width:100%" alt="${product.name}">
+                                            </a>
+                                        </figure>
+                                        <h3>${product.name}</h3>
+                                        <span class="qty">1 Unit</span>
+                                        <span class="rating">
+                                            <svg width="24" height="24" class="text-primary"><use xlink:href="#star-solid"></use></svg> 4.5
+                                        </span>
+                                        <span class="price">$${product.price}</span>
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <a href="#" class="btn btn-warning fs-5">Personnaliser <iconify-icon icon="uil:shopping-cart"></iconify-icon></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            productGrid.append(productHtml);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Erreur AJAX : ' + error);
+                }
+            });
+        });
+    });
+    </script>
+{% endblock script_link %}

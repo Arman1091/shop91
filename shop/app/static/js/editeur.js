@@ -10,7 +10,29 @@ document.addEventListener('DOMContentLoaded', function () {
         updateFormFields();
     });
 
-
+    let inputs = document.querySelectorAll(".lign_input");
+    let controls = document.querySelectorAll(".controls");
+    
+    inputs.forEach((input, index) => {
+        let correspondingControl = controls[index];
+    
+        input.addEventListener("focus", function () {
+            if (correspondingControl) {
+                correspondingControl.style.display = "flex";
+            }
+            this.setAttribute("data-active", "true");
+        });
+    
+        input.addEventListener("blur", function () {
+            setTimeout(() => {
+                if (correspondingControl && !correspondingControl.matches(":hover")) {
+                    correspondingControl.style.display = "none";
+                    this.removeAttribute("data-active");
+                }
+            }, 200);
+        });
+    });
+    
 });
 
 function addNewInput() {
@@ -55,6 +77,7 @@ function addNewInput() {
 }
 
 function toggleStyle(button, styleProp, valueOn, valueOff) {
+
     let container = button.closest('.input-container');
     let hiddenInput = container.querySelector('.lign_input_hiden');
     let currentStyle = hiddenInput.style[styleProp] || getComputedStyle(hiddenInput)[styleProp];
@@ -80,6 +103,7 @@ function setAlignment(button, alignValue) {
 }
 
 function updateOutput() {
+ 
     let outputDiv = document.getElementById("output");
     let productImg = document.getElementById("logo-preview");
     let qrPreview = document.getElementById("qr-preview");
@@ -101,7 +125,7 @@ function updateOutput() {
         let input = container.querySelector(".lign_input");
         let hiddenInput = container.querySelector('.lign_input_hiden');
         let textElement = document.createElement("div");
-
+        console.log(hiddenInput);
         hiddenInput.value = input.value;
         textElement.textContent = input.value;
         textElement.style.cssText = hiddenInput.style.cssText;

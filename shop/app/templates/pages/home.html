@@ -60,13 +60,13 @@
 <div class="par-category-container container">
     <h1 class="btn-warning">Voir les catégories les plus populaires </h1>
     <div class="par-category-grid">
-        <a href="{% url 'plaque_professionnelle' %}">
+        <a href="{{ 'plaque-professionnelle' }}">
             <div class="par-category-plaque" >
                 <img  class="img-category"src="{% static 'img/materieux/plexiglas.png' %}" alt="Plaque en Plexiglas">
                 <p class="title-category"> Plaque professionnel →</p> 
             </div>
         </a>
-        <a href="{% url 'plaque_maison' %}">
+        <a href="{{ 'plaque-maison' }}">
             <div class="par-category-plaque ">
                 <img class="img-category"  src="{% static 'img/materieux/aluminium.png' %}" alt="Plaque en Aluminium">
                 <p class="title-category">Plaque maison →</p>
@@ -110,15 +110,17 @@
                                     <i class="bi bi-heart" width="24" height="24"></i>
                                 </a>
                                 <figure>
+                                    
                                     {% comment %} <a href="{% url 'product_detail' product.id %}" title="{{ product.name }}"> {% endcomment %}
-                                        <a href="{% url 'editeur' product.activity.sub_category.category.slug_name product.id %}" title="{{ product.name }}">
+                                        <a href="{% url 'editeur' product.activity.sub_category.category.slug_name  product.activity.slug_name product.id %}" title="{{ product.name }}">
 
     
-                                    {% with product.images.all|dictsortreversed:"is_featured"|first as featured_image %}
-                                            {% if featured_image %}
-                                                <img src="{{ featured_image.image_url.url }}" class="tab-image" style="width:100%" alt="{{ product.name }}">
+                                            {% with product.images.all|dictsortreversed:"is_featured"|first as featured_image %}
+                                           
+                                            {% if featured_image  %}
+                                                <img src="{{ featured_image.product_image.image_url.url }}" class="tab-image" style="width:100%" alt="{{ product.name }}">
                                             {% else %}
-                                                <img src="{% static 'img/prof1.png' %}" class="tab-image" style="width:100%" alt="No Image">
+                                                <img src="{% static 'img/prof5.png' %}" class="tab-image" style="width:100%" alt="No Image">
                                             {% endif %}
                                         {% endwith %}
                                     </a>
