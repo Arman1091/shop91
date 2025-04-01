@@ -112,7 +112,7 @@ class Material(models.Model):
 
 # Modèle Thickness
 class Thickness(models.Model):
-    value = models.DecimalField(max_digits=5, decimal_places=2)
+    value = models.IntegerField()
     unit = models.CharField(max_length=10, default="mm")
 
     def __str__(self):
@@ -171,12 +171,13 @@ class StyleTexte(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True)
-    width = models.DecimalField(max_digits=5, decimal_places=2)
-    height = models.DecimalField(max_digits=5, decimal_places=2)
+    width =  models.IntegerField()
+    height =  models.IntegerField()
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     text_color = models.ForeignKey(TextColor, on_delete=models.SET_NULL, null=True, blank=True)
     plaque_color = models.ForeignKey(PlaqueColor, on_delete=models.SET_NULL, null=True, blank=True)
     thickness = models.ForeignKey(Thickness, on_delete=models.SET_NULL, null=True, blank=True)
+    product_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     material = models.ForeignKey(Material, on_delete=models.SET_NULL, null=True, blank=True)
     is_first_vu = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -306,6 +307,8 @@ class CustomizedProduct(models.Model):
     qrCode_position_x = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     qrCode_position_y = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    pdf_field = models.FileField(upload_to='custom_pdfs/', null=True, blank=True)
+    jpeg_field = models.FileField(upload_to='custom_jpegs/', null=True, blank=True)
 
     def __str__(self):
         return f"Personnalisation de {self.base_product.name} par {self.user.username if self.user else 'Utilisateur non connecté'}"

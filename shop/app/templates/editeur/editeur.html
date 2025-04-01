@@ -26,6 +26,32 @@
         </div>
     </div>
 
+    <div id="dimonsions-modal" class="modal-container">
+        <div class="modal-content">
+            <button type="button" id="close_modal_materiel" class="close-modal close-modal-epaisseur">×</button>
+            <div class="select-dimonsions-container container">
+                <h6 class="btn-warning">Les dimonsions</h6>
+                <div class="row">
+                    <div class="custom-file col-6 d-flex justify-content-center align-items-center">
+                        <label class="custom-file-label" for="larg">Largeur</label>
+                        <input type="text" class="form-control" id="larg" value="{{product.width}}" style="width:60px">
+                        <span class="input-group-text" >mm</span>
+                      
+                    </div>
+                    <div class="custom-file col-6 d-flex justify-content-center align-items-center">
+                        <label class="custom-file-label" for="haut">Hauteur</label>
+                        <input type="text" class="form-control" id="haut" value="{{product.height}}" style="width:60px">
+                        <span class="input-group-text" >mm</span>
+                    </div>
+                </div>
+                <div>
+                    <p type="button"class="btn btn-warning" id="saveDimensions">Enregistrer<p/>
+                </div>
+
+                
+            </div>
+        </div>
+    </div>
     <div id="material-modal" class="modal-container">
         <div class="modal-content">
             <button type="button" class="close-modal close-modal-materiel">×</button>
@@ -38,7 +64,8 @@
                                 {% if material.image %}
                                     <img id='{{ material.id }}' src="{{ material.image.url }}" alt="{{ material.name }}">
                                 {% endif %}
-                                <p class="btn-warning">{{ material.name }} →</p>
+                                {{ material.name }}
+                                <p class="btn-warning">{{ material.name }} </p><span>→</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -46,7 +73,6 @@
             </div>
         </div>
     </div>
-
     <div id="color-modal" class="modal-container">
         <div class="modal-content">
             <button type="button" class="close-modal close-modal-color">×</button>
@@ -60,13 +86,46 @@
     <section id="customize_section" class="container-fluid d-flex justify-content-center">
         <div class="container customize_container">
             <div class="row header_customize">
+                
                 <h1 class="text-center">Personnalisez votre plaque</h1>
             </div>
             <div class="row input-container2">
                 <div class="col-12 col-sm-5 col-md-4 left-aside">
                     <h5 class="text-center">Contenu de votre design</h5>
                     <div id="input-list">
-                        <!-- [Votre code pour les lignes de texte reste inchangé] -->
+                  
+                        {% for ligne in lignes %}
+    <div class="input-container">
+        <div class="input-row">
+            <input class="lign_input" type="text" name="texte[]" placeholder="Tapez ici..." value="{{ ligne.ligne_texte.texte }}" oninput="updateOutput()">
+            <input class="lign_input_hiden d-none" name="hidden_texte[]"
+                style="font-size: {{ ligne.ligne_texte.taille_police }}px;
+                       {% with style=ligne.ligne_texte.styles.first.style %}
+                           color: {{ style.couleur }};
+                           {% if style.gras %} font-weight: bold; {% endif %}
+                           {% if style.italique %} font-style: italic; {% endif %}
+                           {% if style.souligne %} text-decoration: underline; {% endif %}
+                       {% endwith %}
+                       font-family: {{ ligne.ligne_texte.police.nom }};
+                       position: absolute; left: {{ ligne.ligne_texte.position_x }}px; top: {{ ligne.ligne_texte.position_y }}px;"
+                value="{{ ligne.ligne_texte.texte }}">
+            <button type="button" class="delete-btn" onclick="this.closest('.input-container').remove(); updateOutput()">
+                <i class="bi bi-trash3 delete-icon"></i>
+            </button>
+        </div>
+        <div class="controls">
+            <input type="number" name="taille_police[]" min="10" max="50" value="{{ ligne.ligne_texte.taille_police }}" onchange="updateStyle(this, 'fontSize', 'px')">
+            {% with style=ligne.ligne_texte.styles.first.style %}
+                <button type="button" class="toggle-btn {% if style.gras %}active{% endif %}" onclick="toggleStyle(this, 'fontWeight', 'bold', 'normal')">B</button>
+                <button type="button" class="toggle-btn {% if style.italique %}active{% endif %}" onclick="toggleStyle(this, 'fontStyle', 'italic', 'normal')">I</button>
+                <button type="button" class="toggle-btn {% if style.souligne %}active{% endif %}" onclick="toggleStyle(this, 'textDecoration', 'underline', 'none')">U</button>
+            {% endwith %}
+            <button type="button" class="toggle-btn align-btn" onclick="setAlignment(this, 'left')"><i class="bi bi-justify-left"></i></button>
+            <button type="button" class="toggle-btn align-btn" onclick="setAlignment(this, 'center')"><i class="bi bi-justify"></i></button>
+            <button type="button" class="toggle-btn align-btn" onclick="setAlignment(this, 'end')"><i class="bi bi-justify-right"></i></button>
+        </div>
+    </div>
+{% endfor %}
                     </div>
                     <div id="add_new_item">
                         <div id="new_ligne" class="d-flex justify-content-center align-items-center">
@@ -93,7 +152,40 @@
                     <div class="row output-row bg-light" style="width:100%; height:100%">
                         <div class="affichage-section col-12 col-sm-10 bg-light">
                             <div class="row test d-flex justify-content-center flex-column align-items-center">
-                                <div id="output_div" class="d-flex justify-content-center align-items-center">
+                                <div id="output_div" class="d-flex flex-column justify-content-between align-items-center">
+                                    <div id="bridge_epp_mat_tille">
+                                        <div>
+                                            <strong><span>Matiere:</span></strong>
+                                            <span id="select_materiel_value" >{{ product.material.name }}</span>
+                                            <span><i  id="select_materiel"class="bi bi-pencil"></i></span>
+                                            <input id="material_hidden_id"type="hidden" value= {{ product.material.id }} >
+                                        </div>
+                                        <div>
+                                            <strong><span>Taille:</span></strong>
+                                            <span id="taille_plaque_width">{{product.width}}</span>
+                                            <span>x</span>
+                                            <span  id="taille_plaque_height">{{product.height}}</span>
+                                            <span><i id="set_tailles" class="bi bi-pencil"></i></span>
+                                        </div>
+                                        <div class="d-flex justify-content-start align-items-center">
+                                            <strong><span>Epaisseur:</span></strong>
+        
+                                            <select class="custom-select form-select" aria-label="Default select example" >
+                                     
+                                                <option selected>{{product.thickness.value}}</option>
+
+                                                {% for item in epaisseurs%}
+                                                    <option class="epp_ops"value={{item.id}}>{{item.value}}</option>
+                                                {% endfor %}
+
+                                            </select>
+                                            
+                                            <span>mm</span>
+                                            
+                                            <span id="edit_epp"><i class="bi bi-pencil"></i></span>
+                                           
+                                        </div>
+                                    </div>
                                     <div id="output" style="width:{{product.width}}px; height:{{product.height}}px;">
                                         <div class="logo-plaque-ex draggable" id="logo-preview"
                                             style="{% if product.logo %}width: {{ product.logo_width }}px; height:{{ product.logo_height }}px; position: absolute; left: {{ product.logo_position_x }}px; top: {{ product.logo_position_y }}px; background-image: url('{{ product.logo.url }}'); background-size: cover;{% else %}bottom:30px; left:100px; width:50px; height:50px;{% endif %}">
@@ -123,7 +215,7 @@
                                 <p class="plaque-option-label">forme</p>
                             </div>
                             <div class="materal-div fs-2 d-flex justify-content-center align-items-center flex-column">
-                                <button type="button" id="select_materiel" class="btn"><i class="bi bi-box plaque-option-icon fs-2"></i></button>
+                                <button type="button" id="select_materiel2" class="btn"><i class="bi bi-box plaque-option-icon fs-2"></i></button>
                                 <p class="plaque-option-label">Matière</p>
                             </div>
                             <div class="color-div fs-2 d-flex justify-content-center align-items-center flex-column">
@@ -138,9 +230,13 @@
                     </div>
                 </div>
             </div>
-            <div class="row d-flex justify-content-end mt-2">
+            <div class=" d-flex justify-content-end mt-2">
+                <div class="d-flex  justify-content-center align-items-center fs-2 mx-3">
+                    <p id="editeur_prix_plaque" >{{ product.product_price }}</p>
+                    <p >€&nbsp;TTC</p>
+                </div>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary btn-lg" id="add-to-cart-btn">AJOUTER AU PANIER</button>
+                    <button type="submit" class="btn btn-primary btn-lg" id="add-to-cart-btn" >AJOUTER AU PANIER</button>
                 </div>
             </div>
         </div>
@@ -159,93 +255,205 @@
     <input type="hidden" name="plaque_color" id="plaque-color-id">
 </form>
 
-<!-- Section de succès -->
 <div id="success_add_card" style="display: none;">
+
     <div class="success_add_card-content">
-        <button type="button" class="close-modal-section">×</button>
+        <button type="button" class="close-modal-section ">×</button>
         <div class="container-fluid">
             <div class="row row-customize" id="product-info">
-                <!-- Contenu rempli dynamiquement via AJAX -->
+                {% comment %} <div class="col-sm-3 text-center align-self-center">
+                    <img src="{% static 'img/hero-img.png' %}" 
+                    alt="" srcset="" class="img-fluid img-thumbnail shadow-sm"
+                    height="150" width="150">
+                </div> 
+
+                <div class="col-sm-9">
+                    <div>
+                        <h5>sdsd</h5>
+                        <p class="mb-2 text-muted small"> sddsd</p>
+                        <div class="my-3">
+                            <label for="quantity">Quantity:</label>
+                            <a class="minus-cart btn" ><i class="fas fa-minus-square fa-lg"></i> </a>
+                                <span id="quantity"></span>
+                            <a class="plus-cart btn" ><i class="fas fa-plus-square fa-lg"></i> </a>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="remove-cart btn btn-sm btn-secondary mr-3" >Remove item</a>
+                            <p class="mb-0"><span><strong>Rs. 25</strong></span></p>
+                        </div>
+                    </div>
+                </div> {% endcomment %}
             </div>
             <div class="row gap-2 d-flex justify-content-center">
                 <div class="col-12 col-sm-5 bg-warning">
-                    <button class="btn continue-shopping">Continuer mes achats</button>
+                    <button class="btn ">Continuer mes achat</button>
                 </div>
                 <div class="col-12 col-sm-5 bg-success">
-                    <a class="btn go-to-cart">Aller au panier</a>
+                    <a class="btn go-to-cart" >Aller Au panier</a>
                 </div>
+
             </div>
+
         </div>
     </div>
+
 </div>
 {% endblock main-content %}
 
 {% block script_link %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+    
 $(document).ready(function() {
-    // Gestion de la soumission du formulaire avec AJAX
+    function generateFiles(callback) {
+        const { jsPDF } = window.jspdf;
+        const outputDiv = document.getElementById('output');
+    
+        // Capture for JPEG (unchanged)
+        html2canvas(outputDiv, {
+            scale: 2, // Higher quality for JPEG
+            useCORS: true // For external images like QR codes
+        }).then(canvas => {
+            // Generate JPEG (exactly as in your original code)
+            const jpegData = canvas.toDataURL('image/jpeg', 1.0); // 1.0 = max quality
+            const jpegBase64 = jpegData.split(',')[1]; // Remove "data:image/jpeg;base64,"
+    
+            // Generate PDF with exact size and positioning
+            const pdf = new jsPDF({
+                orientation: outputDiv.scrollWidth > outputDiv.scrollHeight ? 'landscape' : 'portrait',
+                unit: 'px',
+                format: [outputDiv.scrollWidth, outputDiv.scrollHeight] // Exact size of output div
+            });
+    
+            // Extract and position all text elements
+            const textElements = outputDiv.getElementsByTagName('*');
+            for (let element of textElements) {
+                if (element.nodeType === 1 && element.textContent.trim()) { // Only elements with text
+                    const style = window.getComputedStyle(element);
+                    const rect = element.getBoundingClientRect();
+                    
+                    // Calculate position relative to output div
+                    const outputRect = outputDiv.getBoundingClientRect();
+                    const x = rect.left - outputRect.left;
+                    const y = rect.top - outputRect.top + (parseInt(style.fontSize) || 12); // Adjust for baseline
+    
+                    // Set font size
+                    pdf.setFontSize(parseInt(style.fontSize) || 12);
+    
+                    // Set text color (convert RGB to hex)
+                    let color = style.color;
+                    if (color.startsWith('rgb')) {
+                        const rgb = color.match(/\d+/g).map(Number);
+                        color = `#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${rgb[2].toString(16).padStart(2, '0')}`;
+                    }
+                    pdf.setTextColor(color || '#000000');
+    
+                    // Set font family and style
+                    const fontFamily = style.fontFamily.split(',')[0].replace(/['"]/g, '') || 'helvetica';
+                    let fontStyle = 'normal';
+                    if (style.fontWeight === 'bold' || parseInt(style.fontWeight) >= 700) fontStyle = 'bold';
+                    if (style.fontStyle === 'italic') fontStyle = style.fontWeight === 'bold' ? 'bolditalic' : 'italic';
+                    pdf.setFont(fontFamily, fontStyle);
+    
+                    // Add text at exact position
+                    pdf.text(element.textContent.trim(), x, y);
+                }
+            }
+    
+            // Save locally for testing
+            pdf.save('custom_output.pdf');
+            const link = document.createElement('a');
+            link.href = jpegData;
+            link.download = 'custom_output.jpeg';
+            link.click();
+    
+            // Get PDF base64
+            const pdfBase64 = pdf.output('datauristring').split(',')[1];
+    
+            // Pass both base64 strings to callback
+            callback(pdfBase64, jpegBase64);
+        }).catch(error => {
+            console.error('Error generating files:', error);
+            alert('Failed to generate PDF/JPEG.');
+        });
+    }
     $('#customize-form').on('submit', function(e) {
-        e.preventDefault(); // Empêche la soumission par défaut
+        e.preventDefault();
 
-        var formData = new FormData(this); // Sérialise les données du formulaire, y compris les fichiers
+        // Update hidden form fields before generating files
+        updateFormFields();
 
-        $.ajax({
-            url: $(this).attr('action'), // URL de la vue customize_product
-            type: 'POST',
-            data: formData,
-            processData: false, // Ne pas traiter les données (nécessaire pour FormData)
-            contentType: false, // Ne pas définir le type de contenu (nécessaire pour FormData)
-            success: function(response) {
-                if (response.success) {
-                    // Afficher la section de succès
+        const form = this;
+
+        // Generate PDF and JPEG, then send to backend
+        generateFiles(function(pdfBase64, jpegBase64) {
+            var formData = new FormData(form);
+            formData.append('pdf_file', pdfBase64);
+            formData.append('jpeg_file', jpegBase64);
+
+            // Log to verify data
+            console.log('PDF Base64:', pdfBase64.substring(0, 50)); // First 50 chars
+            console.log('JPEG Base64:', jpegBase64.substring(0, 50));
+
+            $.ajax({
+                url: $(form).attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('Server Response:', response);
                     $('#success_add_card').show();
-
-                    // Remplir dynamiquement les informations du produit
                     var productInfo = `
                         <div class="col-12 text-center">
                             <div class="alert alert-success" role="alert">
-                                ${response.message}
+                                Produit ajouté au panier avec succès !
                             </div>
                         </div>
+                    
                         <div class="col-sm-3 text-center align-self-center">
-                            <img src="${response.logo_url || '{% static 'img/hero-img.png' %}'}" 
+                            <img src="${response.jpeg_url || '{% static 'img/hero-img.png' %}'}" 
                                  alt="Product Image" class="img-fluid img-thumbnail shadow-sm" 
                                  height="150" width="150">
                         </div>
                         <div class="col-sm-9">
                             <div>
-                                <h5>${response.product_name}</h5>
-                                <p class="mb-2 text-muted small">Matériau: ${response.material_name}</p>
-                                <p class="mb-2 text-muted small">Couleur: ${response.color_name}</p>
+                                <h5>${response.product_name || 'Customized Product'}</h5>
+                                <p class="mb-2 text-muted small">Material: ${response.material_name || 'N/A'}</p>
+                                <p class="mb-2 text-muted small">Color: ${response.color_name || 'N/A'}</p>
                             </div>
                         </div>
                     `;
                     $('#product-info').html(productInfo);
-                } else {
-                    alert('Erreur: ' + (response.message || 'Une erreur est survenue.'));
+
+                    // Optionally display links to saved files
+                    if (response.pdf_url) {
+                        $('#product-info').append(`<p><a href="${response.pdf_url}" target="_blank">View PDF</a></p>`);
+                    }
+                    if (response.jpeg_url) {
+                        $('#product-info').append(`<p><a href="${response.jpeg_url}" target="_blank">View JPEG</a></p>`);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding to cart.');
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error('Erreur AJAX:', error);
-                alert('Une erreur est survenue lors de l\'ajout au panier.');
-            }
+            });
         });
     });
 
-    // Fermer la section de succès
+    // Close success modal, etc.
     $('.close-modal-section').on('click', function() {
         $('#success_add_card').hide();
     });
-
-    // Continuer les achats
     $('.continue-shopping').on('click', function() {
         $('#success_add_card').hide();
     });
-
-    // Aller au panier
     $('.go-to-cart').on('click', function() {
-        window.location.href = "{% url 'view_cart' %}"; // Remplacez par l'URL réelle de votre panier
+        $('#success_add_card').hide();
+        window.location.href = "{% url 'view_cart' %}";
     });
 });
 </script>

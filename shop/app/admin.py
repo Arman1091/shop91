@@ -203,7 +203,7 @@ class ProductLigneTexteForm(forms.ModelForm):
     styles = forms.ModelMultipleChoiceField(
         queryset=StyleTexte.objects.all(),
         required=False,
-        widget=forms.SelectMultiple(attrs={'size': '5'}),  # Liste déroulante avec sélection multiple
+        widget=forms.SelectMultiple(attrs={'size': '5'}),
         label="Styles existants"
     )
     new_styles = forms.CharField(
@@ -304,9 +304,9 @@ class ProductLigneTexteInline(admin.TabularInline):
 # Admin pour Product avec les inlines
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'main_image_preview', 'activity', 'text_color', 'plaque_color', 'thickness', 'material', 'width', 'height', 'is_first_vu', 'created_at', 'view_product_images')
+    list_display = ('name', 'main_image_preview', 'activity', 'text_color', 'plaque_color', 'thickness', 'material', 'width', 'height', 'is_first_vu', "product_price", 'created_at', 'view_product_images')
     search_fields = ('name', 'activity__name', 'text_color__name', 'plaque_color__name')
-    list_filter = ('is_first_vu', 'activity', 'text_color', 'plaque_color', 'thickness', 'material')
+    list_filter = ('is_first_vu', 'activity', 'text_color', 'plaque_color', 'thickness', 'material', 'product_price')
     list_editable = ('is_first_vu', 'text_color', 'plaque_color', 'thickness', 'material')
     inlines = [ProductImageRelationInline, ProductLigneTexteInline]
 
@@ -354,12 +354,47 @@ class LigneTexteStyleAdmin(admin.ModelAdmin):
     list_display = ('ligne_texte', 'style')
     search_fields = ('ligne_texte__texte',)
 
-# Admin pour CustomizedProduct
+# Inline pour CustomizedProductLigneTexte
+class CustomizedProductLigneTexteInline(admin.TabularInline):
+    model = CustomizedProductLigneTexte
+    extra = 1
+    fields = ('ligne_texte',)
+    readonly_fields = ('ligne_texte',)
+
+# Admin pour CustomizedProduct avec gestion des PDF et JPEG
 @admin.register(CustomizedProduct)
 class CustomizedProductAdmin(admin.ModelAdmin):
-    list_display = ('base_product', 'user', 'material', 'plaque_color', 'created_at')
-    list_filter = ('user', 'material', 'plaque_color', 'created_at')
+    list_display = ('id', 'base_product', 'user', 'material', 'plaque_color', 'pdf_link', 'jpeg_link', 'created_at')
+    list_filter = ('user', 'base_product', 'material', 'plaque_color', 'created_at')  # Temporarily remove problematic filters
     search_fields = ('base_product__name', 'user__username')
+    inlines = [CustomizedProductLigneTexteInline]
+
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'base_product', 'material', 'plaque_color')
+        }),
+        ('Logo Settings', {
+            'fields': ('logo', 'logo_width', 'logo_height', 'logo_position_x', 'logo_position_y'),
+        }),
+        ('QR Code Settings', {
+            'fields': ('qrCode', 'qrCode_width', 'qrCode_height', 'qrCode_position_x', 'qrCode_position_y'),
+        }),
+        ('Output Files', {
+            'fields': ('pdf_field', 'jpeg_field'),
+        }),
+    )
+
+    def pdf_link(self, obj):
+        if hasattr(obj, 'pdf_field') and obj.pdf_field:
+            return format_html('<a href="{}" target="_blank">View PDF</a>', obj.pdf_field.url)
+        return "No PDF"
+    pdf_link.short_description = 'PDF'
+
+    def jpeg_link(self, obj):
+        if hasattr(obj, 'jpeg_field') and obj.jpeg_field:
+            return format_html('<a href="{}" target="_blank">View JPEG</a>', obj.jpeg_field.url)
+        return "No JPEG"
+    jpeg_link.short_description = 'JPEG'
 
 # Admin pour CustomizedStyleTexte
 @admin.register(CustomizedStyleTexte)

@@ -43,4 +43,5 @@ urlpatterns = [
     path("plaque-professionnelle/", views.plaque_by_url, name="plaque_by_url"),
     path("plaque-maison/", views.plaque_by_url, name="plaque_by_url"),
     path('get-products-by-subcategory/', views.get_products_by_subcategory, name='get_products_by_subcategory'),
+    path('get-product-price/', views.get_product_price, name='get_product_price'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

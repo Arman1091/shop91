@@ -6,11 +6,14 @@ from django.http import JsonResponse
 from django.views import View
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
+import base64
+from io import BytesIO
+from django.core.files.base import ContentFile
 from .models import (
-    Customer, Category, SubCategory, Activity, Product, Material, PlaqueColor, TextColor, Police,
+    Customer, Category, SubCategory, Activity, Product, Material, Thickness,PlaqueColor, TextColor, Police,
     CustomizedProduct, CustomizedLigneTexte, CustomizedStyleTexte, Wishlist, Cart, CartItem,
     Address, Payment, CookieConsent, ProductLigneTexte, LigneTexteStyle, ProductImage,
-    ProductImageRelation, CustomizedProductLigneTexte, CustomizedLigneTexteStyle, LigneTexte, StyleTexte
+    ProductImageRelation, CustomizedProductLigneTexte, CustomizedLigneTexteStyle, LigneTexte, StyleTexte,MaterialThicknessPrice
 )
 from .forms import CustomerRegistrationForm, CustomerProfileForm, LoginForm, MyPasswordResetForm, MyPasswordChangeForm, MySetPasswordForm
 import re
@@ -398,6 +401,7 @@ def editeur(request, category_slug,activity_slug, product_id=None):
             'materials': Material.objects.all(),
             'plaque_colors': PlaqueColor.objects.all(),
             'category_slug': category_slug,
+            'epaisseurs': Thickness.objects.all(),
         }
     else:
         category = get_object_or_404(Category, slug_name=category_slug)
@@ -424,6 +428,7 @@ def product_detail(request, product_id):
 
 
 
+@csrf_exempt
 def customize_product(request, product_id):
     base_product = get_object_or_404(Product, id=product_id)
     materials = Material.objects.all()
@@ -449,6 +454,10 @@ def customize_product(request, product_id):
             "hidden_textes": request.POST.getlist("hidden_texte[]"),
         }
 
+        # Handle PDF and JPEG files from AJAX
+        pdf_base64 = request.POST.get("pdf_file")
+        jpeg_base64 = request.POST.get("jpeg_file")
+
         # Étape 1 : Sauvegarde du produit personnalisé
         if request.user.is_authenticated:
             customized_product = CustomizedProduct(
@@ -469,6 +478,22 @@ def customize_product(request, product_id):
             )
             customized_product.save()
 
+            # Save PDF file if provided
+            if pdf_base64:
+                pdf_data = base64.b64decode(pdf_base64)
+                pdf_file = ContentFile(pdf_data, name=f'custom_output_{customized_product.id}.pdf')
+                customized_product.pdf_field.save(pdf_file.name, pdf_file)
+
+            # Save JPEG file if provided
+            if jpeg_base64:
+                jpeg_data = base64.b64decode(jpeg_base64)
+                jpeg_file = ContentFile(jpeg_data, name=f'custom_output_{customized_product.id}.jpeg')
+                customized_product.jpeg_field.save(jpeg_file.name, jpeg_file)
+
+            # Save the product again if files were added
+            customized_product.save()
+
+            # Save text customizations
             textes = customization_data["textes"]
             tailles = customization_data["tailles"]
             hidden_textes = customization_data["hidden_textes"]
@@ -528,6 +553,8 @@ def customize_product(request, product_id):
                 "logo_url": customized_product.logo.url if customized_product.logo else None,
                 "material_name": Material.objects.get(id=customization_data["material_id"]).name if customization_data["material_id"] else "N/A",
                 "color_name": PlaqueColor.objects.get(id=customization_data["plaque_color_id"]).name if customization_data["plaque_color_id"] else "N/A",
+                "pdf_url": customized_product.pdf_field.url if customized_product.pdf_field else None,
+                "jpeg_url": customized_product.jpeg_field.url if customized_product.jpeg_field else None,
             }
             return JsonResponse(response_data)
 
@@ -537,6 +564,13 @@ def customize_product(request, product_id):
                 request.session["pending_customizations"] = []
             customization_id = len(request.session["pending_customizations"])
             customization_data["temp_id"] = customization_id
+
+            # Add PDF and JPEG to session (as base64 for simplicity)
+            if pdf_base64:
+                customization_data["pdf_base64"] = pdf_base64
+            if jpeg_base64:
+                customization_data["jpeg_base64"] = jpeg_base64
+
             request.session["pending_customizations"].append(customization_data)
 
             # Ajout au panier dans la session
@@ -556,10 +590,13 @@ def customize_product(request, product_id):
                 "logo_url": customization_data["logo"].name if customization_data["logo"] else None,
                 "material_name": Material.objects.get(id=customization_data["material_id"]).name if customization_data["material_id"] else "N/A",
                 "color_name": PlaqueColor.objects.get(id=customization_data["plaque_color_id"]).name if customization_data["plaque_color_id"] else "N/A",
+                # For non-authenticated users, URLs won't be available until saved
+                "pdf_url": None,
+                "jpeg_url": None,
             }
             return JsonResponse(response_data)
 
-    # GET request : rendu du formulaire
+    # GET request: rendu du formulaire
     return render(request, "pages/customize_product.html", {
         "product": base_product,
         "materials": materials,
@@ -943,3 +980,34 @@ def get_products_by_subcategory(request):
 def plaque_maison(request):
 
     return render(request, 'plaque/plaque-maison.html')
+
+def get_product_price(request):
+    if request.method == "POST":
+        text_count = int(request.POST.get('text_count', 0))
+        logo_exists = request.POST.get('logo_exists') == 'true'
+        qr_exists = request.POST.get('qr_exists') == 'true'
+        plaque_width = int(request.POST.get('plaque_width', 0))
+        plaque_height = int(request.POST.get('plaque_height', 0))
+        material_id = request.POST.get('plaque_material_id')
+        thickness_id= int(request.POST.get('plaque_epp_value'))
+
+        # Exemple de calcul du prix (modifie selon ta logique)
+        area = (plaque_width / 1000) * (plaque_height / 1000)
+        price_material=0
+
+        if material_id and thickness_id:
+            price_material = get_object_or_404(MaterialThicknessPrice, material_id=material_id, thickness_id=thickness_id)
+
+        price = area*float(price_material.price_per_square_meter)+ (text_count * 2)  # Ajoute 2€ par ligne de texte
+
+        if logo_exists:
+            price += 5  # Ajoute 5€ si un logo est présent
+        if qr_exists:
+            price += 3  # Ajoute 3€ si un QR code est présent
+        
+
+        
+
+        return JsonResponse({'price': price})
+    
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=400)

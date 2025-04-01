@@ -74,6 +74,7 @@ function addNewInput() {
             }
         }, 200);
     });
+
 }
 
 function toggleStyle(button, styleProp, valueOn, valueOff) {
@@ -96,9 +97,16 @@ function updateStyle(input, styleProp, unit) {
 function setAlignment(button, alignValue) {
     let container = button.closest('.input-container');
     let hiddenInput = container.querySelector('.lign_input_hiden');
+
+    // Correction: Remplacer 'start' par 'left'
+
+
     hiddenInput.style.textAlign = alignValue;
+
+    // Met à jour les boutons actifs
     button.parentElement.querySelectorAll(".align-btn").forEach(btn => btn.classList.remove("active"));
     button.classList.add("active");
+
     updateOutput();
 }
 
@@ -155,6 +163,7 @@ function updateOutput() {
     document.querySelectorAll('.preview-text').forEach(el => {
         makeTextDraggable(el);
     });
+    get_current_price();
 }
 
 function updateFormFields() {
@@ -177,17 +186,33 @@ function updateFormFields() {
         hiddenInput.value = input.value;
     });
 }
+function debounce(func, delay) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+
+}
 
 function updateQR() {
+ 
     const qrUrl = document.getElementById('qr-url').value;
     if (qrUrl) {
         const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=${encodeURIComponent(qrUrl)}`;
         document.getElementById('qr-preview').style.backgroundImage = `url(${qrApi})`;
         document.getElementById('qr-preview').style.display = 'block';
+       
     } else {
         document.getElementById('qr-preview').style.backgroundImage = 'none';
         document.getElementById('qr-preview').style.display = 'none';
+     
     }
+    if (!updateQR.debouncedGetPrice) {
+        updateQR.debouncedGetPrice = debounce(get_current_price, 500);
+    }
+    
+    updateQR.debouncedGetPrice(); // Appel de la fonction debounce
 }
 
 function makeDraggableAndResizable(element) {
@@ -318,9 +343,11 @@ function makeTextDraggable(element) {
         element.style.left = newLeft + "px";
         element.style.top = newTop + "px";
 
-        let container = document.querySelector(`[data-line-id="${element.id.split('-')[1]}"]`);
+        // Update the corresponding hidden input
+        const index = element.id.split('-')[1]; // Extract index from "text-<index>"
+        const container = document.querySelectorAll('.input-container')[index];
         if (container) {
-            let hiddenInput = container.querySelector('.lign_input_hiden');
+            const hiddenInput = container.querySelector('.lign_input_hiden');
             hiddenInput.style.left = newLeft + "px";
             hiddenInput.style.top = newTop + "px";
         }
@@ -348,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
         img.addEventListener("click", function () {
             logoPreview.style.backgroundImage = `url(${img.src})`;
             logoModal.style.display = "none";
+            get_current_price();
         });
     });
 
@@ -358,8 +386,11 @@ document.addEventListener("DOMContentLoaded", function () {
             reader.onload = function (e) {
                 logoPreview.style.backgroundImage = `url(${e.target.result})`;
                 logoModal.style.display = "none";
+                get_current_price();
             };
             reader.readAsDataURL(file);
+
+            
         }
     });
 
@@ -367,15 +398,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const materialOpenBtn = document.getElementById("select_materiel");
     const materialCloseBtn = document.querySelector(".close-modal-materiel");
 
+    const dimonsionsModal = document.getElementById("dimonsions-modal");
+    const taillesOpenBtn  = document.getElementById("set_tailles"); 
+    const taillesCloseBtn = document.querySelector(".close-modal-epaisseur");
+
+
     materialOpenBtn.addEventListener("click", () => materialModal.style.display = "flex");
     materialCloseBtn.addEventListener("click", () => materialModal.style.display = "none");
 
-    document.querySelectorAll(".select-materiel-plaque").forEach(item => {
-        item.addEventListener("click", function () {
-            document.getElementById("material-id").value = this.dataset.materialId;
-            materialModal.style.display = "none";
-        });
-    });
+    taillesOpenBtn.addEventListener("click", () => dimonsionsModal.style.display = "flex");
+    taillesCloseBtn.addEventListener("click", () => dimonsionsModal.style.display = "none");
+
 
     const colorModal = document.getElementById("color-modal");
     const colorOpenBtn = document.getElementById("select_color");
@@ -391,3 +424,98 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+document.querySelectorAll(".select-materiel-plaque").forEach(item => {
+    const materialModal = document.getElementById("material-modal");
+    item.addEventListener("click", function () {
+        const materialName = this.querySelector('p').innerHTML;
+        document.getElementById("material-id").value = this.dataset.materialId;
+        document.getElementById("material_hidden_id").value= this.dataset.materialId;
+        document.getElementById("select_materiel_value").innerHTML=materialName;
+        get_current_price();
+        materialModal.style.display = "none";
+    });
+});
+
+document.getElementById('saveDimensions').addEventListener('click', function() {
+    // Get the values
+    const largeur = document.getElementById('larg').value;
+    const hauteur = document.getElementById('haut').value;
+    
+     document.getElementById("taille_plaque_width").innerHTML=largeur ;
+     document.getElementById("taille_plaque_height").innerHTML = hauteur ;
+    
+    // Close the modal
+    document.getElementById('dimonsions-modal').style.display = 'none';
+    get_current_price();
+});
+
+document.getElementById('edit_epp').addEventListener('click', function() {
+    const select = document.querySelector('.custom-select');
+    // Get all options
+    const options = document.querySelectorAll('.epp_ops');
+    console.log( options );
+    // Show all options by adding show-options class
+    options.forEach(option => {
+        option.classList.remove('epp_ops');
+        option.classList.add('show-options');
+      
+    });
+   
+    select.focus(); 
+    select.click(); 
+
+});
+
+document.querySelector('.custom-select').addEventListener('change', function() {
+    get_current_price();
+});
+
+function get_current_price(){
+    // Sélectionner tous les éléments ayant la classe "output-text" à l'intérieur de #output
+    const textElements = document.querySelectorAll('#output .output-text');
+    
+    // Obtenir le nombre d'éléments
+    const textCount = textElements.length;
+
+    // Vérifier si le logo a une URL valide
+    const logoElement = document.querySelector('#output #logo-preview');
+    const logoExists = logoElement && logoElement.style.backgroundImage.includes('url') && !logoElement.style.backgroundImage.includes('none');
+    
+    // Vérifier si le QR code a une URL valide
+    const qrElement = document.querySelector('#output #qr-preview');
+    const qrExists = qrElement && qrElement.style.backgroundImage.includes('url') && !qrElement.style.backgroundImage.includes('none');
+
+    const select = document.querySelector('.custom-select');
+    const plaque_width = parseInt(document.getElementById("taille_plaque_width").innerHTML, 10);
+    const plaque_height = parseInt(document.getElementById("taille_plaque_height").innerHTML, 10);
+    const plaque_material_id = parseInt(document.getElementById("material_hidden_id").value, 10);
+    const plaque_epp_value = parseInt(select.options[select.selectedIndex].value, 10);
+  
+
+        // Envoi AJAX vers Django
+        $.ajax({
+            url: "/get-product-price/",
+            type: "POST",
+            data: {
+                text_count: textCount,
+                logo_exists: logoExists,
+                qr_exists: qrExists,
+                plaque_width:plaque_width,
+                plaque_height:plaque_height,
+                plaque_material_id:plaque_material_id,
+                plaque_epp_value:plaque_epp_value,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val() // Protection CSRF
+            },
+            success: function(response) {
+                
+                if (response.price) {
+                    $("#editeur_prix_plaque").text(response.price ); // Affichage du prix
+                }
+            },
+            error: function(error) {
+                console.error("Erreur lors de la récupération du prix :", error);
+            }
+        });
+ 
+}

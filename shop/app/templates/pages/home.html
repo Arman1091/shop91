@@ -98,7 +98,7 @@
         <div class="bootstrap-tabs product-tabs">
             <div class="row tabs-header border-bottom my-5">
                 <div>
-                    <h3>PLAQUE MAISON</h3>
+                    <h3>PLAQUE PROFESSIONNELLE</h3>
                 </div>
             </div>
             <div>
@@ -126,13 +126,17 @@
                                     </a>
                                 </figure>
                                 <h3>{{ product.name }}</h3>
-                                <span class="qty">1 Unit</span>
+                                <span class="qty">{{ product.description}}</span>
                                 <span class="rating">
-                                    <svg width="24" height="24" class="text-primary">
+                                    
+                                    {% comment %} <svg width="24" height="24" class="text-primary">
                                         <use xlink:href="#star-solid"></use>
-                                    </svg> 4.5
+                                    </svg> 4.5 {% endcomment %}
                                 </span>
-                                <span class="price">$18.00</span>
+                                <div class="d-flex  justify-content-start align-items-center fs-4">
+                                    <p id="price" >{{ product.product_price }}</p>
+                                    <p >€&nbsp;TTC</p>
+                                </div>
                                 <div class="d-flex align-items-center justify-content-center">
                                     <a href="#" class="btn btn-warning fs-5">Personnaliser <iconify-icon icon="uil:shopping-cart"></iconify-icon></a>
                                 </div>

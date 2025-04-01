@@ -121,11 +121,19 @@ input {
     overflow: hidden; /* Pour éviter les débordements */
     width: 100% ; /* Empêche de dépasser la taille de l'écran */
     height:  100%;
-    margin-top: 70px !important;
+   
     padding: 40px;
 
 }
+#bridge_epp_mat_tille{
+    width: 100%;
+}
+#bridge_epp_mat_tille p{
+    margin: 0 !important;
+    padding: 0;
+    font-size: 10px;
 
+}
 #output {
     position: relative;
     border: 1px solid rebeccapurple;
@@ -143,7 +151,29 @@ input {
 .plaque-option-label{
     font-size: 10px !important;
 }
+.input-group-text{
+    background-color: transparent;
+    border: none;
+    
+}
+.custom-select {
+    appearance: none; /* Supprime le style par défaut */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: none; /* Supprime la bordure */
+    background: transparent; /* Fond transparent */
+    padding: 0;
+    width:10px; /* Ajustement automatique selon le texte */
+    font-size: inherit;
+    outline: none; /* Supprime le focus */
+  }
 
+.show-options {
+    display: block; /* Class to show options when needed */
+}
+.epp_ops{
+    display: none;
+}
 @media only screen and (max-width: 576px){
 /* Ajuster les styles pour s'assurer que les boutons et inputs prennent aussi la largeur complète si nécessaire */
 input[type="text"], input[type="number"] {

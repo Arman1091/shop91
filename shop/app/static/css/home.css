@@ -181,9 +181,9 @@
 .product-item .qty {
   font-weight: 400;
   font-size: 13px;
-  line-height: 18px;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  /* line-height: 18px;
+  letter-spacing: 0.02em; */
+  /* text-transform: uppercase; */
   color: #9D9D9D;
 }
 .product-item .rating {
